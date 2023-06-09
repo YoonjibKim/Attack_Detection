@@ -1,0 +1,6 @@
+without statistic analysis
+cs worst,cs best,cs average loss rate,cs median loss rate
+"{'combination_type': 'T', 'ml_type': 'GM', 'combination_loss_rate': 0.12123031882336677, 'f1_score': 0.01338762760082557}","{'combination_type': 'T + B + I', 'ml_type': 'AB', 'combination_loss_rate': 4.197830411393245, 'f1_score': 1.0}",1.8483545990796146,0.12123031882336677
+with statistic analysis
+cs best combination type,cs best ml type,cs loss rate,cs f1 score,cs f1 score average,cs f1 score median
+B + I,AB,0.10959297792490179,0.9963418649308133,0.9825436884159748,0.9949704177869494

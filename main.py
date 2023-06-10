@@ -137,8 +137,8 @@ if __name__ == '__main__':
     # Load_Dataset(Constant_Parameters.STAT)
     # Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
-    # Run_ML(Constant_Parameters.TOP)
+    Run_ML(Constant_Parameters.TOP)
     # Result_Analysis(Constant_Parameters.STAsT)
-    Result_Analysis(Constant_Parameters.TOP)
+    # Result_Analysis(Constant_Parameters.TOP)
 
     print('Simulation End')

@@ -32,12 +32,12 @@ class Final_Model:
 
             top_scenario_initial = cls.__get_abbreviation(scenario_name)
             param_top_dict = top_dict[top_scenario_initial]
-            combination_type = param_top_dict[Constant_Parameters.COMBINATION_TYPE]
-            temp_path = default_top_path + '/' + combination_type + '/' + Constant_Parameters.F1_SCORE
 
             feature_combination_list = param_top_dict[Constant_Parameters.FEATURE_COMBINATION]
             feature_index_list = feature_combination_list.split(' + ')
 
+            # combination_type = param_top_dict[Constant_Parameters.COMBINATION_TYPE]
+            # temp_path = default_top_path + '/' + combination_type + '/' + Constant_Parameters.F1_SCORE
             # symbol_index_file_path = temp_path + '/' + top_scenario_initial + Constant_Parameters.SYMBOL_INDEX
             # with open(symbol_index_file_path, 'r') as f:
             #     symbol_index_dict = json.load(f)

@@ -1,5 +1,6 @@
 import Constant_Parameters
 from Dataset_Initialization import Dataset_Initialization
+from Final_Model import Final_Model
 from STAT_Analyser import STAT_Analyser
 from STAT_Detection_Model import STAT_Detection_Model
 from STAT_Parser import STAT_Parser
@@ -130,6 +131,11 @@ def Result_Analysis(experiment_flag):
         print('Wrong Experiment Choice')
 
 
+def Ensemble_Learning():
+    final_model = Final_Model()
+    final_model.get_best_score()
+
+
 if __name__ == '__main__':
     print('Simulation Start')
 
@@ -137,8 +143,9 @@ if __name__ == '__main__':
     # Load_Dataset(Constant_Parameters.STAT)
     # Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
-    Run_ML(Constant_Parameters.TOP)
-    # Result_Analysis(Constant_Parameters.STAsT)
+    # Run_ML(Constant_Parameters.TOP)
+    # Result_Analysis(Constant_Parameters.STAT)
     # Result_Analysis(Constant_Parameters.TOP)
+    Ensemble_Learning()
 
     print('Simulation End')

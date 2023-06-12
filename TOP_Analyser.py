@@ -181,6 +181,7 @@ class TOP_Analyser:
 
         cs_all_file_list = os.listdir(cs_root_path)
         cs_best_score_file_list = [file for file in cs_all_file_list if file.endswith(".json")]
+
         gs_all_file_list = os.listdir(gs_root_path)
         gs_best_score_file_list = [file for file in gs_all_file_list if file.endswith(".json")]
 

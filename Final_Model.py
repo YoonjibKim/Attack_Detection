@@ -19,6 +19,7 @@ class Final_Model:
             self.__get_best_score_dict(gs_time_diff_dict, gs_stat_dict, gs_top_dict, Constant_Parameters.GS)
 
     def get_best_score(self):
+        print('Best Score')
         print('CS: ', self.__cs_best_score_dict)
         print('GS: ', self.__gs_best_score_dict)
 

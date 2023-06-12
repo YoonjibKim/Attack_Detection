@@ -1,0 +1,6 @@
+without statistic analysis
+gs worst,gs best,gs average loss rate,gs median loss rate
+"{'combination_type': 'T', 'ml_type': 'KM', 'combination_loss_rate': 0.07202107152105366, 'f1_score': 0.013181227920745076}","{'combination_type': 'T + C + I', 'ml_type': 'KNN', 'combination_loss_rate': 1.5719492712712, 'f1_score': 0.9970378643083381}",0.6784217801048746,0.07202107152105366
+with statistic analysis
+gs best combination type,gs best ml type,gs loss rate,gs f1 score,gs f1 score average,gs f1 score median
+B + C + I,AB,0.0,0.972567230102264,0.9465539448492687,0.9849681338146105

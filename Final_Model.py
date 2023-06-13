@@ -54,8 +54,8 @@ class Final_Model:
             stat_f1_score = stat_list[3]
 
             top_type = param_top_dict[Constant_Parameters.TYPE]
-            top_combination = feature_index_list
-            top_feature_comb_list = feature_index_list
+            top_combination_type = param_top_dict[Constant_Parameters.COMBINATION_TYPE]
+            top_feature_combination = symbol_name_list
             top_ml_type = param_top_dict[Constant_Parameters.ML_TYPE]
             top_f1_score = param_top_dict[Constant_Parameters.F1_SCORE]
 
@@ -65,8 +65,8 @@ class Final_Model:
                           Constant_Parameters.STAT_FEATURE_COMBINATION: stat_feature_combination,
                           Constant_Parameters.STAT_F1_SCORE: stat_f1_score,
                           Constant_Parameters.TOP_TYPE: top_type,
-                          Constant_Parameters.TOP_COMBINATION: top_combination,
-                          Constant_Parameters.TOP_FEATURE_COMB_LIST: top_feature_comb_list,
+                          Constant_Parameters.TOP_COMBINATION: top_combination_type,
+                          Constant_Parameters.TOP_FEATURE_COMB_LIST: top_feature_combination,
                           Constant_Parameters.TOP_ML_TYPE: top_ml_type,
                           Constant_Parameters.TOP_F1_SCORE: top_f1_score}
 

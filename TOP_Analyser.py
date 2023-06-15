@@ -117,7 +117,7 @@ class TOP_Analyser:
 
                 default_save_path = \
                     Constant_Parameters.RESULT_TOP_DIR_PATH + '/' + station_type + '/' + comb_name + '/' + \
-                    Constant_Parameters.F1_SCORE_PATH + '/' + scenario_type
+                    Constant_Parameters.F1_SCORE_PATH + '/' + scenario_type + '_' + type_name
 
                 symbol_index_dict = None
                 for symbol_name, ml_dict in symbol_dict.items():
@@ -149,7 +149,8 @@ class TOP_Analyser:
             best_list = sorted_score_list[0]
 
             param_dict = {Constant_Parameters.TYPE: best_list[0], Constant_Parameters.COMBINATION_TYPE: best_list[1],
-                          Constant_Parameters.FEATURE_COMBINATION: best_list[2], Constant_Parameters.ML_TYPE: best_list[3],
+                          Constant_Parameters.FEATURE_COMBINATION: best_list[2],
+                          Constant_Parameters.ML_TYPE: best_list[3],
                           Constant_Parameters.COMBINATION_LOSS_RATE: best_list[4],
                           Constant_Parameters.F1_SCORE: best_list[5]}
         else:
@@ -161,90 +162,17 @@ class TOP_Analyser:
         return param_dict
 
     def run(self, scenario_type):
+        print(scenario_type)
+
         cs_best_score_dict = self.__get_best_score_dict(scenario_type, Constant_Parameters.CS, self.__cs_top_score_dict)
         gs_best_score_dict = self.__get_best_score_dict(scenario_type, Constant_Parameters.GS, self.__gs_top_score_dict)
 
         cs_save_path = Constant_Parameters.RESULT_TOP_DIR_PATH + '/' + Constant_Parameters.CS + '/' + \
-                       scenario_type + '_' + Constant_Parameters.BEST_SCORE_FILE_NAME
+                       scenario_type + '_' + Constant_Parameters.BEST_SCORE_FILE_NAME + '.json'
         gs_save_path = Constant_Parameters.RESULT_TOP_DIR_PATH + '/' + Constant_Parameters.GS + '/' + \
-                       scenario_type + '_' + Constant_Parameters.BEST_SCORE_FILE_NAME
+                       scenario_type + '_' + Constant_Parameters.BEST_SCORE_FILE_NAME + '.json'
 
         with open(cs_save_path, 'w') as f:
             json.dump(cs_best_score_dict, f)
         with open(gs_save_path, 'w') as f:
             json.dump(gs_best_score_dict, f)
-
-    @classmethod
-    def get_final_best_score(cls):
-        cs_root_path = Constant_Parameters.RESULT_TOP_DIR_PATH + '/' + Constant_Parameters.CS
-        gs_root_path = Constant_Parameters.RESULT_TOP_DIR_PATH + '/' + Constant_Parameters.GS
-
-        cs_all_file_list = os.listdir(cs_root_path)
-        cs_best_score_file_list = [file for file in cs_all_file_list if file.endswith(".json")]
-
-        gs_all_file_list = os.listdir(gs_root_path)
-        gs_best_score_file_list = [file for file in gs_all_file_list if file.endswith(".json")]
-
-        cs_score_list = []
-        for cs_best_score_file in cs_best_score_file_list:
-            cs_file_path = cs_root_path + '/' + cs_best_score_file
-            with open(cs_file_path, 'r') as f:
-                cs_score_dict = json.load(f)
-
-            cs_type = cs_score_dict[Constant_Parameters.TYPE]
-            cs_comb_type = cs_score_dict[Constant_Parameters.COMBINATION_TYPE]
-            cs_feature_comb = cs_score_dict[Constant_Parameters.FEATURE_COMBINATION]
-            cs_ml_type = cs_score_dict[Constant_Parameters.ML_TYPE]
-            cs_clr = cs_score_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
-            cs_f1_score = cs_score_dict[Constant_Parameters.F1_SCORE]
-
-            if cs_clr > 0 and cs_f1_score > 0:
-                param_list = [cs_type, cs_comb_type, cs_feature_comb, cs_ml_type, cs_clr, cs_f1_score]
-                cs_score_list.append(param_list)
-
-        print('-------------------- CS Best Score --------------------')
-        if len(cs_score_list) > 0:
-            sorted_cs_score_list = sorted(cs_score_list, key=lambda x: (x[4], -x[5]))
-            best_cs_score_list = sorted_cs_score_list[0]
-            best_cs_score_dict = {Constant_Parameters.TYPE: best_cs_score_list[0],
-                                  Constant_Parameters.COMBINATION_TYPE: best_cs_score_list[1],
-                                  Constant_Parameters.FEATURE_COMBINATION: best_cs_score_list[2],
-                                  Constant_Parameters.ML_TYPE: best_cs_score_list[3],
-                                  Constant_Parameters.COMBINATION_LOSS_RATE: best_cs_score_list[4],
-                                  Constant_Parameters.F1_SCORE: best_cs_score_list[5]}
-
-            print(best_cs_score_dict)
-        else:
-            print('No CS Best Score')
-
-        gs_score_list = []
-        for gs_best_score_file in gs_best_score_file_list:
-            gs_file_path = gs_root_path + '/' + gs_best_score_file
-            with open(gs_file_path, 'r') as f:
-                gs_score_dict = json.load(f)
-
-            gs_type = gs_score_dict[Constant_Parameters.TYPE]
-            gs_comb_type = gs_score_dict[Constant_Parameters.COMBINATION_TYPE]
-            gs_feature_comb = gs_score_dict[Constant_Parameters.FEATURE_COMBINATION]
-            gs_ml_type = gs_score_dict[Constant_Parameters.ML_TYPE]
-            gs_clr = gs_score_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
-            gs_f1_score = gs_score_dict[Constant_Parameters.F1_SCORE]
-
-            if gs_clr > 0 and gs_f1_score > 0:
-                param_list = [gs_type, gs_comb_type, gs_feature_comb, gs_ml_type, gs_clr, gs_f1_score]
-                gs_score_list.append(param_list)
-
-        print('-------------------- GS Best Score --------------------')
-        if len(gs_score_list) > 0:
-            sorted_gs_score_list = sorted(gs_score_list, key=lambda x: (x[4], -x[5]))
-            best_gs_score_list = sorted_gs_score_list[0]
-            best_gs_score_dict = {Constant_Parameters.TYPE: best_gs_score_list[0],
-                                  Constant_Parameters.COMBINATION_TYPE: best_gs_score_list[1],
-                                  Constant_Parameters.FEATURE_COMBINATION: best_gs_score_list[2],
-                                  Constant_Parameters.ML_TYPE: best_gs_score_list[3],
-                                  Constant_Parameters.COMBINATION_LOSS_RATE: best_gs_score_list[4],
-                                  Constant_Parameters.F1_SCORE: best_gs_score_list[5]}
-
-            print(best_gs_score_dict)
-        else:
-            print('No Best GS Score')

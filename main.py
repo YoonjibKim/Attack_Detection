@@ -125,27 +125,25 @@ def Result_Analysis(experiment_flag):
         for abbreviation, ml_scenario_path in Constant_Parameters.ML_DATASET_PATH_DICT.items():
             top_analyser = TOP_Analyser(ml_scenario_path)
             top_analyser.run(abbreviation)
-
-        TOP_Analyser.get_final_best_score()
     else:
         print('Wrong Experiment Choice')
 
 
 def Ensemble_Learning():
     final_model = Final_Model()
-    final_model.get_best_score()
+    final_model.run()
 
 
 if __name__ == '__main__':
     print('Simulation Start')
 
-    # Initialize_File_Path()
+    Initialize_File_Path()
     # Load_Dataset(Constant_Parameters.STAT)
     # Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
     # Run_ML(Constant_Parameters.TOP)
     # Result_Analysis(Constant_Parameters.STAT)
     # Result_Analysis(Constant_Parameters.TOP)
-    Ensemble_Learning()
+    # Ensemble_Learning()
 
     print('Simulation End')

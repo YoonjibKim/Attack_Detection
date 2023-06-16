@@ -1,1 +1,1 @@
-{"type": "instructions", "combination_type": "exclusive", "feature_combination": "3 + 4", "ml_type": "AB", "combination_loss_rate": 0.002538965029143553, "f1_score": 1.0}
+{"type": "cycles", "combination_type": "exclusive", "feature_combination": "0 + 1", "ml_type": "AB", "combination_loss_rate": 0.03514416647460325, "f1_score": 1.0, "support": 12}

@@ -1,1 +1,1 @@
-{"type": "branch", "combination_type": "exclusive", "feature_combination": "1 + 3 + 4", "ml_type": "AB", "combination_loss_rate": 0.00469840134826828, "f1_score": 1.0}
+{"type": "branch", "combination_type": "exclusive", "feature_combination": "0 + 1 + 2", "ml_type": "AB", "combination_loss_rate": 0.014095204044804868, "f1_score": 1.0, "support": 14}

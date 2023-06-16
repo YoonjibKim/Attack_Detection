@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-
 import Constant_Parameters
 
 
@@ -94,6 +93,20 @@ class STAT_Analyser:
 
         return f1_score_dict
 
+    @classmethod
+    def __get_support_dict(cls, score_dict):
+        support_dict = {}
+        for scenario, ml_dict in score_dict.items():
+            ml_type_dict = {}
+            for ml_type, result_dict in ml_dict.items():
+                support = result_dict[Constant_Parameters.SUPPORT]
+                ml_type_dict[ml_type] = support
+
+            initials = cls.__get_initials(scenario)
+            support_dict[initials] = ml_type_dict
+
+        return support_dict
+
     def __drawing_f1_score(self, combined_score_dict, station_type):
         df = pd.DataFrame(combined_score_dict)
         sns.heatmap(df, cmap='YlGnBu', annot=True, fmt='1.3f', linewidths=.3)
@@ -108,29 +121,33 @@ class STAT_Analyser:
         plt.clf()
 
     @classmethod
-    def __extracting_score_without_statistics_dict(cls, f1_score_dict, merged_loss_rate_dict):
+    def __extracting_score_without_statistics_dict(cls, f1_score_dict, support_dict, merged_loss_rate_dict):
         score_list = []
         data = list(merged_loss_rate_dict.values())
         avg_loss_rate = np.mean(data)
         median_loss_rate = np.median(data)
 
         for comb_type, ml_type_dict in f1_score_dict.items():
+            support_ml_type_dict = support_dict[comb_type]
             for ml_type, score in ml_type_dict.items():
-                param_list = [comb_type, ml_type, merged_loss_rate_dict[comb_type], score]
+                support = support_ml_type_dict[ml_type]
+                param_list = [comb_type, ml_type, merged_loss_rate_dict[comb_type], score, support]
                 score_list.append(param_list)
 
-        sorted_score_list = sorted(score_list, key=lambda x: x[3])
+        sorted_score_list = sorted(score_list, key=lambda x: (x[4], -x[2], x[3]))
         worst_score_list = sorted_score_list[0]
         best_score_list = sorted_score_list[len(sorted_score_list) - 1]
 
         worst_score_dict = {Constant_Parameters.COMBINATION_TYPE: worst_score_list[0],
                             Constant_Parameters.ML_TYPE: worst_score_list[1],
                             Constant_Parameters.COMBINATION_LOSS_RATE: worst_score_list[2],
-                            Constant_Parameters.F1_SCORE: worst_score_list[3]}
+                            Constant_Parameters.F1_SCORE: worst_score_list[3],
+                            Constant_Parameters.SUPPORT: worst_score_list[4]}
         best_score_dict = {Constant_Parameters.COMBINATION_TYPE: best_score_list[0],
                            Constant_Parameters.ML_TYPE: best_score_list[1],
                            Constant_Parameters.COMBINATION_LOSS_RATE: best_score_list[2],
-                           Constant_Parameters.F1_SCORE: best_score_list[3]}
+                           Constant_Parameters.F1_SCORE: best_score_list[3],
+                           Constant_Parameters.SUPPORT: best_score_list[4]}
 
         return worst_score_dict, best_score_dict, avg_loss_rate, median_loss_rate
 
@@ -161,7 +178,7 @@ class STAT_Analyser:
         plt.savefig(save_path)
         plt.clf()
 
-    def __get_best_score_with_statistics(self, f1_score_dict, merged_loss_rate_dict, station_type):
+    def __get_best_score_with_statistics(self, f1_score_dict, support_dict, merged_loss_rate_dict, station_type):
         sorted_loss_rate_tuple = sorted(merged_loss_rate_dict.items(), key=lambda x: x[1])
         smallest_loss_rate = sorted_loss_rate_tuple[0][1]
         all_param_list = []  
@@ -172,13 +189,15 @@ class STAT_Analyser:
             loss_rate = temp[1]
 
             ml_dict = f1_score_dict[comb_type]
+            support_ml_dict = support_dict[comb_type]
             sorted_ml_tuple = sorted(ml_dict.items(), key=lambda x: x[1], reverse=True)
             max_tuple = sorted_ml_tuple[0]
             ml_type = max_tuple[0]
+            support = support_ml_dict[ml_type]
             score = max_tuple[1]
             score_list.append(score)
 
-            param_list = [comb_type, ml_type, loss_rate, score]
+            param_list = [comb_type, ml_type, loss_rate, score, support]
             all_param_list.append(param_list)
 
         file_path = Constant_Parameters.RESULT_STAT_DIR_PATH + '/' + station_type + '/' + \
@@ -194,17 +213,19 @@ class STAT_Analyser:
             if temp_loss_rate == smallest_loss_rate:
                 loss_rate_list.append(all_param)
 
-        sorted_loss_rate_list = sorted(loss_rate_list, key=lambda x: x[3], reverse=True)  # 이곳을 살펴 봐라
+        sorted_loss_rate_list = sorted(loss_rate_list, key=lambda x: (x[4], -x[2], x[3]), reverse=True)
         smallest_loss_rate_list = sorted_loss_rate_list[0]
 
         param_comb_type = smallest_loss_rate_list[0]
         param_ml_type = smallest_loss_rate_list[1]
         param_loss_rate = smallest_loss_rate_list[2]
         param_score = smallest_loss_rate_list[3]
+        param_support = smallest_loss_rate_list[4]
         param_score_avg = np.mean(score_list)
         param_score_median = np.median(score_list)
 
-        return param_comb_type, param_ml_type, param_loss_rate, param_score, param_score_avg, param_score_median
+        return param_comb_type, param_ml_type, param_loss_rate, param_score, param_support, param_score_avg, \
+               param_score_median
 
     def run(self, cs_merged_loss_rate_dict, gs_merged_loss_rate_dict):
         print('--------------------------------------------------------------------------')
@@ -213,40 +234,47 @@ class STAT_Analyser:
         cs_f1_score_dict = self.__get_f1_score_dict(self.__cs_stat_score_dict)
         gs_f1_score_dict = self.__get_f1_score_dict(self.__gs_stat_score_dict)
 
+        cs_support_dict = self.__get_support_dict(self.__cs_stat_score_dict)
+        gs_support_dict = self.__get_support_dict(self.__gs_stat_score_dict)
+
         self.__drawing_f1_score(cs_f1_score_dict, Constant_Parameters.CS)
         self.__drawing_f1_score(gs_f1_score_dict, Constant_Parameters.GS)
 
         print('----------------------- without statistic analysis -----------------------')
         cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate = \
-            self.__extracting_score_without_statistics_dict(cs_f1_score_dict, cs_merged_loss_rate_dict)
+            self.__extracting_score_without_statistics_dict(cs_f1_score_dict, cs_support_dict, cs_merged_loss_rate_dict)
         print('cs worst: ', cs_worst_score_dict)
         print('cs best: ', cs_best_score_dict)
         print('cs average loss rate: ', cs_avg_loss_rate)
         print('cs median loss rate: ', cs_median_loss_rate)
 
         gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate = \
-            self.__extracting_score_without_statistics_dict(gs_f1_score_dict, gs_merged_loss_rate_dict)
+            self.__extracting_score_without_statistics_dict(gs_f1_score_dict, gs_support_dict, gs_merged_loss_rate_dict)
         print('gs worst: ', gs_worst_score_dict)
         print('gs best: ', gs_best_score_dict)
         print('gs average loss rate: ', gs_avg_loss_rate)
         print('gs median loss rate: ', gs_median_loss_rate)
 
         print('------------------------- with statistic analysis ------------------------')
-        cs_comb_type, cs_ml_type, cs_loss_rate, cs_f1_score, cs_f1_score_avg, cs_f1_score_median = \
-            self.__get_best_score_with_statistics(cs_f1_score_dict, cs_merged_loss_rate_dict, Constant_Parameters.CS)
+        cs_comb_type, cs_ml_type, cs_loss_rate, cs_f1_score, cs_support, cs_f1_score_avg, cs_f1_score_median = \
+            self.__get_best_score_with_statistics(cs_f1_score_dict, cs_support_dict,
+                                                  cs_merged_loss_rate_dict, Constant_Parameters.CS)
         print('cs best combination type: ', cs_comb_type)
         print('cs best ml type: ', cs_ml_type)
         print('cs loss rate: ', cs_loss_rate)
         print('cs f1 score: ', cs_f1_score)
+        print('cs support: ', cs_support)
         print('cs f1 score average: ', cs_f1_score_avg)
         print('cs f1 score median: ', cs_f1_score_median)
 
-        gs_comb_type, gs_ml_type, gs_loss_rate, gs_f1_score, gs_f1_score_avg, gs_f1_score_median = \
-            self.__get_best_score_with_statistics(gs_f1_score_dict, gs_merged_loss_rate_dict, Constant_Parameters.GS)
+        gs_comb_type, gs_ml_type, gs_loss_rate, gs_f1_score, gs_support, gs_f1_score_avg, gs_f1_score_median = \
+            self.__get_best_score_with_statistics(gs_f1_score_dict, gs_support_dict,
+                                                  gs_merged_loss_rate_dict, Constant_Parameters.GS)
         print('gs best combination type: ', gs_comb_type)
         print('gs best ml type: ', gs_ml_type)
         print('gs loss rate: ', gs_loss_rate)
         print('gs f1 score: ', gs_f1_score)
+        print('gs support: ', gs_support)
         print('gs f1 score average: ', gs_f1_score_avg)
         print('gs f1 score median: ', gs_f1_score_median)
 
@@ -261,9 +289,10 @@ class STAT_Analyser:
             wr.writerow(['cs worst', 'cs best', 'cs average loss rate', 'cs median loss rate'])
             wr.writerow([cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate])
             wr.writerow(['with statistic analysis'])
-            wr.writerow(['cs best combination type', 'cs best ml type', 'cs loss rate', 'cs f1 score',
+            wr.writerow(['cs best combination type', 'cs best ml type', 'cs loss rate', 'cs f1 score', 'cs support',
                          'cs f1 score average', 'cs f1 score median'])
-            wr.writerow([cs_comb_type, cs_ml_type, cs_loss_rate, cs_f1_score, cs_f1_score_avg, cs_f1_score_median])
+            wr.writerow([cs_comb_type, cs_ml_type, cs_loss_rate, cs_f1_score, cs_support, cs_f1_score_avg,
+                         cs_f1_score_median])
 
         with open(gs_file_path, 'w', newline='') as f:
             wr = csv.writer(f)
@@ -271,6 +300,7 @@ class STAT_Analyser:
             wr.writerow(['gs worst', 'gs best', 'gs average loss rate', 'gs median loss rate'])
             wr.writerow([gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate])
             wr.writerow(['with statistic analysis'])
-            wr.writerow(['gs best combination type', 'gs best ml type', 'gs loss rate', 'gs f1 score',
+            wr.writerow(['gs best combination type', 'gs best ml type', 'gs loss rate', 'gs f1 score', 'gs support',
                          'gs f1 score average', 'gs f1 score median'])
-            wr.writerow([gs_comb_type, gs_ml_type, gs_loss_rate, gs_f1_score, gs_f1_score_avg, gs_f1_score_median])
+            wr.writerow([gs_comb_type, gs_ml_type, gs_loss_rate, gs_f1_score, gs_support, gs_f1_score_avg,
+                         gs_f1_score_median])

@@ -87,6 +87,7 @@ K = '[k]'
 PERCENT = '%'
 BEST_SCORE_FILE_NAME = 'best_score'
 SYMBOL_INDEX = 'symbol_index'
+
 ADA_BOOST = 'AB'
 AGGLOMERATIVE_CLUSTERING = 'AC'
 DB_SCAN = 'DS'
@@ -125,6 +126,7 @@ RESULT_FINAL_SUGGESTION_PATH = 'Result/' + FINAL_SUGGESTION
 BEST_FEATURE_PATH = 'Sub_Best_Feature'
 F1_SCORE_PATH = 'F1_Score'
 BEST_FEATURE = 'Best_Feature'
+CLR = 'CLR'
 STATISTICS_PATH = BEST_FEATURE
 STATISTICS = 'statistics'
 BASIS_SYMBOL = 'basis_symbol'

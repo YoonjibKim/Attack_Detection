@@ -64,13 +64,15 @@ class Final_Model:
             ml_type = temp_score_dict[Constant_Parameters.ML_TYPE]
             comb_loss_rate = temp_score_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
             f1_score = temp_score_dict[Constant_Parameters.F1_SCORE]
+            support = temp_score_dict[Constant_Parameters.SUPPORT]
 
             param_dict = {Constant_Parameters.TYPE: feature_type,
                           Constant_Parameters.COMBINATION_TYPE: combination_type,
                           Constant_Parameters.FEATURE_COMBINATION: feature_combination,
                           Constant_Parameters.ML_TYPE: ml_type,
                           Constant_Parameters.COMBINATION_LOSS_RATE: comb_loss_rate,
-                          Constant_Parameters.F1_SCORE: f1_score}
+                          Constant_Parameters.F1_SCORE: f1_score,
+                          Constant_Parameters.SUPPORT: support}
 
             best_score_dict[sub_initial_name] = param_dict
 
@@ -96,8 +98,9 @@ class Final_Model:
                           Constant_Parameters.ML_TYPE: best_score_list[1],
                           Constant_Parameters.COMBINATION_LOSS_RATE: best_score_list[2],
                           Constant_Parameters.F1_SCORE: best_score_list[3],
-                          Constant_Parameters.F1_SCORE_AVERAGE: best_score_list[4],
-                          Constant_Parameters.F1_SCORE_MEDIAN: best_score_list[5]}
+                          Constant_Parameters.SUPPORT: best_score_list[4],
+                          Constant_Parameters.F1_SCORE_AVERAGE: best_score_list[5],
+                          Constant_Parameters.F1_SCORE_MEDIAN: best_score_list[6]}
             best_score_dict[basic_scenario_name] = param_dict
 
         return best_score_dict

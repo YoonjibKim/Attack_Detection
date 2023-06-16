@@ -117,6 +117,18 @@ class TOP_Analyser:
 
         return symbol_index, ml_type, clr, f1_score, support
 
+    @classmethod
+    def __saving_f1_score_result_to_json(cls, f1_score_dict, default_save_path):
+        save_path = default_save_path + '_' + Constant_Parameters.F1_SCORE_PATH + '.json'
+        with open(save_path, 'w') as f:
+            json.dump(f1_score_dict, f)
+
+    @classmethod
+    def __saving__combined_loss_rate_to_json(cls, clr_dict, default_save_path):
+        save_path = default_save_path + '_' + Constant_Parameters.CLR + '.json'
+        with open(save_path, 'w') as f:
+            json.dump(clr_dict, f)
+
     def __get_best_score_dict(self, scenario_type, station_type, top_score_dict):
         score_list = []
         for type_name, comb_dict in top_score_dict.items():
@@ -150,7 +162,9 @@ class TOP_Analyser:
 
                 if len(symbol_dict) > 1:
                     self.__saving_f1_score_to_heatmap(param_symbol_f1_score_dict, default_save_path)
+                    self.__saving_f1_score_result_to_json(param_symbol_f1_score_dict, default_save_path)
                     self.__saving_combined_loss_rate_to_heatmap(param_symbol_CLR_dict, default_save_path)
+                    self.__saving__combined_loss_rate_to_json(param_symbol_CLR_dict, default_save_path)
                     self.__saving_symbol_index(symbol_index_dict, default_save_path)
                     self.__saving_support(param_symbol_support_dict, default_save_path)
 

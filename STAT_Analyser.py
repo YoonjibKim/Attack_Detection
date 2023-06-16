@@ -204,7 +204,7 @@ class STAT_Analyser:
                     Constant_Parameters.BEST_FEATURE_PATH + '/' + self.__scenario_type + '_best_feature.csv'
         with open(file_path, 'w', newline='') as f:
             wr = csv.writer(f)
-            wr.writerow(['combination', 'ml type', 'loss rate', 'f1 score'])
+            wr.writerow(['combination', 'ml type', 'loss rate', 'f1 score', 'support'])
             wr.writerows(all_param_list)
 
         loss_rate_list = []

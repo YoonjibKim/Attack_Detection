@@ -1,4 +1,4 @@
-combination,ml type,loss rate,f1 score
+combination,ml type,loss rate,f1 score,support
 B,AB,0.0,0.7324017764103978,749
 C,KNN,0.0,0.9357226661959546,749
 I,GB,0.0,0.8193485009229431,749

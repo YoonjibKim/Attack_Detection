@@ -1,4 +1,5 @@
 import Constant_Parameters
+from Data_Extraction import Data_Extraction
 from Dataset_Initialization import Dataset_Initialization
 from Final_Model import Final_Model
 from STAT_Analyser import STAT_Analyser
@@ -134,6 +135,12 @@ def Ensemble_Learning():
     final_model.run()
 
 
+def Experiment_Data_Extraction():
+    data_extraction = Data_Extraction()
+    data_extraction.saving_station_id()
+    data_extraction.saving_charging_session()
+
+
 if __name__ == '__main__':
     print('Simulation Start')
 
@@ -142,8 +149,9 @@ if __name__ == '__main__':
     # Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
     # Run_ML(Constant_Parameters.TOP)
-    Result_Analysis(Constant_Parameters.STAT)
-    Result_Analysis(Constant_Parameters.TOP)
-    Ensemble_Learning()
+    # Result_Analysis(Constant_Parameters.STAT)
+    # Result_Analysis(Constant_Parameters.TOP)
+    # Ensemble_Learning()
+    Experiment_Data_Extraction()
 
     print('Simulation End')

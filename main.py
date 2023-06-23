@@ -139,6 +139,7 @@ def Experiment_Data_Extraction():
     data_extraction = Data_Extraction()
     data_extraction.saving_station_id()
     data_extraction.saving_charging_session()
+    data_extraction.saving_sim_time()
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import csv
 import json
+import numpy as np
 import Constant_Parameters
 
 
@@ -10,13 +11,55 @@ class Data_Extraction:
     __cs_attack_mode_dict: dict
     __cs_normal_mode_dict: dict
 
+    __simulation_time_dict: dict
+
     def __init__(self):
         self.__loading_station_id()
         self.__loading_charging_session(self.__cs_station_id_dict)
+        self.__loading_sim_time(self.__gs_station_id_dict)
 
     def __loading_charging_session(self, cs_station_id_dict):
         self.__cs_attack_mode_dict = self.__get_charging_session_dict(cs_station_id_dict, Constant_Parameters.ATTACK)
         self.__cs_normal_mode_dict = self.__get_charging_session_dict(cs_station_id_dict, Constant_Parameters.NORMAL)
+
+    def __loading_sim_time(self, gs_station_id_dict):
+        scenario_abbreviation_list = list(gs_station_id_dict.keys())
+
+        sim_time_dict = {}
+        sim_time_diff_list = []
+        for scenario in scenario_abbreviation_list:
+            attack_dir_path = Constant_Parameters.RAW_DATA_DICT[scenario][Constant_Parameters.ATTACK]
+            normal_dir_path = Constant_Parameters.RAW_DATA_DICT[scenario][Constant_Parameters.NORMAL]
+            attack_sim_file_path = attack_dir_path + '/' + Constant_Parameters.SIM_SEC_ATTACK_FILENAME
+            normal_sim_file_path = normal_dir_path + '/' + Constant_Parameters.SIM_SEC_NORMAL_FILENAME
+
+            with open(attack_sim_file_path, 'r') as f:
+                temp_attack_sim_time = f.read()
+                temp_list = temp_attack_sim_time.split(' ')
+                attack_sim_time = float(temp_list[0])
+
+            with open(normal_sim_file_path, 'r') as f:
+                temp_normal_sim_time = f.read()
+                temp_list = temp_normal_sim_time.split(' ')
+                normal_sim_time = float(temp_list[0])
+
+            sim_time_diff = attack_sim_time - normal_sim_time
+            sim_time_diff = abs(sim_time_diff)
+            sim_time_diff_list.append(sim_time_diff)
+
+            sim_time_dict[scenario] = {Constant_Parameters.ATTACK: attack_sim_time,
+                                       Constant_Parameters.NORMAL: normal_sim_time,
+                                       Constant_Parameters.TIME_DIFF: sim_time_diff}
+
+        self.__simulation_time_dict = {Constant_Parameters.SIMULATION_TIME: sim_time_dict,
+                                       Constant_Parameters.SIMULATION_TIME_DIFF_AVG: np.mean(sim_time_diff_list)}
+
+    def saving_sim_time(self):
+        save_dir_path = Constant_Parameters.EXPERIMENT_DATA + '/' + Constant_Parameters.SIMULATION_TIME
+        save_file_path = save_dir_path + '/' + Constant_Parameters.SIMULATION_TIME + '.json'
+
+        with open(save_file_path, 'w') as f:
+            json.dump(self.__simulation_time_dict, f)
 
     def saving_charging_session(self):
         dir_path = Constant_Parameters.EXPERIMENT_DATA + '/' + Constant_Parameters.CHARGING_SESSION

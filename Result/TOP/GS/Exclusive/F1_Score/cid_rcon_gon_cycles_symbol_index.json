@@ -1,0 +1,1 @@
+{"0": "entry_SYSCALL_64_after_hwframe", "1": "native_sched_clock", "2": "copy_user_enhanced_fast_string", "3": "_raw_spin_lock", "4": "raw_local_deliver"}

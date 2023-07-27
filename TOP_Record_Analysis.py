@@ -420,6 +420,18 @@ class TOP_Record_Analysis:
         cs_elbow_point_file_path = cs_path + '/' + Constant_Parameters.ELBOW_POINT_INFORMATION_FILE_NAME
         gs_elbow_point_file_path = gs_path + '/' + Constant_Parameters.ELBOW_POINT_INFORMATION_FILE_NAME
 
+        cs_record_dict = {Constant_Parameters.ATTACK: cs_attack_record_dict,
+                          Constant_Parameters.NORMAL: cs_normal_record_dict}
+        gs_record_dict = {Constant_Parameters.ATTACK: gs_attack_record_dict,
+                          Constant_Parameters.NORMAL: gs_normal_record_dict}
+
+        cs_record_analysis_file_path = cs_path + '/' + Constant_Parameters.KERNEL_RECORD_FILENAME
+        gs_record_analysis_file_path = gs_path + '/' + Constant_Parameters.KERNEL_RECORD_FILENAME
+
+        with open(cs_record_analysis_file_path, 'w') as f:
+            json.dump(cs_record_dict, f)
+        with open(gs_record_analysis_file_path, 'w') as f:
+            json.dump(gs_record_dict, f)
         with open(cs_ratio_file_path, 'w') as f:
             json.dump(cs_ratio_dict, f)
         with open(gs_ratio_file_path, 'w') as f:

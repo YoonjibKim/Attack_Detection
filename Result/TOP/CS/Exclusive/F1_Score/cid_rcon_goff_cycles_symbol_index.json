@@ -1,0 +1,1 @@
+{"0": "perf_event_alloc", "1": "perf_iterate_ctx", "2": "x86_pmu_event_init", "3": "___slab_alloc", "4": "kmem_cache_alloc_node_trace"}

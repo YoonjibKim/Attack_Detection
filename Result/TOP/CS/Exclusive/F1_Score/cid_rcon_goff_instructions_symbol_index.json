@@ -1,0 +1,1 @@
+{"0": "memcg_slab_free_hook", "1": "perf_event_groups_insert", "2": "x86_pmu_event_init", "3": "copy_process", "4": "inherit_event.constprop.0"}

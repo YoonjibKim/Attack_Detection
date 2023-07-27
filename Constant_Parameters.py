@@ -4,7 +4,7 @@ CS_RECORD_PATH = 'cs_record'
 GS_STAT_PATH = 'gs_stat'
 GS_TOP_PATH = 'gs_top'
 GS_RECORD_PATH = 'gs_record'
-
+KERNEL_RECORD_FILENAME = 'kernel_record.json'
 PERF_RECORD = 'perf_record'
 CS = 'CS'
 GS = 'GS'

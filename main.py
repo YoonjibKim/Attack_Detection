@@ -145,14 +145,14 @@ def Experiment_Data_Extraction():
 if __name__ == '__main__':
     print('Simulation Start')
 
-    # Initialize_File_Path()
+    Initialize_File_Path()
     # Load_Dataset(Constant_Parameters.STAT)
-    # Load_Dataset(Constant_Parameters.TOP)
+    Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
     # Run_ML(Constant_Parameters.TOP)
     # Result_Analysis(Constant_Parameters.STAT)
     # Result_Analysis(Constant_Parameters.TOP)
     # Ensemble_Learning()
-    Experiment_Data_Extraction()
+    # Experiment_Data_Extraction()
 
     print('Simulation End')

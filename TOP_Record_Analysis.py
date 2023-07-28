@@ -289,6 +289,82 @@ class TOP_Record_Analysis:
 
         return param_3_dict
 
+    @classmethod
+    def __extract_cs_common_symbols(cls, record_dict):
+        cycle_symbol_list = []
+        branch_symbol_list = []
+        instruction_symbol_list = []
+        for category_dict in record_dict.values():
+            for category_name, symbol_dict in category_dict.items():
+                temp_symbol_list = []
+                for symbol_name in symbol_dict.keys():
+                    temp_symbol_list.append(symbol_name)
+
+                if Constant_Parameters.CYCLES == category_name:
+                    cycle_symbol_list.append(temp_symbol_list)
+                elif Constant_Parameters.BRANCH == category_name:
+                    branch_symbol_list.append(temp_symbol_list)
+                elif Constant_Parameters.INSTRUCTIONS == category_name:
+                    instruction_symbol_list.append(temp_symbol_list)
+
+        prev_set = set(cycle_symbol_list[0])
+        for index in range(1, len(cycle_symbol_list)):
+            next_set = set(cycle_symbol_list[index])
+            prev_set &= next_set
+        common_cycle_list = list(prev_set)
+
+        prev_set = set(branch_symbol_list[0])
+        for index in range(1, len(branch_symbol_list)):
+            next_set = set(branch_symbol_list[index])
+            prev_set &= next_set
+        common_branch_list = list(prev_set)
+
+        prev_set = set(instruction_symbol_list[0])
+        for index in range(1, len(instruction_symbol_list)):
+            next_set = set(instruction_symbol_list[index])
+            prev_set &= next_set
+        common_instruction_list = list(prev_set)
+
+        return common_cycle_list, common_branch_list, common_instruction_list
+
+    @classmethod
+    def __get_average_overhead_dict(cls, common_cycle_list, common_branch_list, common_instruction_list, record_dict):
+        cycle_dict = {}
+        for symbol_name in common_cycle_list:
+            overhead_list = []
+            for category_dict in record_dict.values():
+                symbol_dict = category_dict[Constant_Parameters.CYCLES]
+                overhead = symbol_dict[symbol_name]
+                overhead_list.append(float(overhead))
+            avg_overhead = np.mean(overhead_list)
+            cycle_dict[symbol_name] = round(float(avg_overhead), 2)
+
+        branch_dict = {}
+        for symbol_name in common_branch_list:
+            overhead_list = []
+            for category_dict in record_dict.values():
+                symbol_dict = category_dict[Constant_Parameters.BRANCH]
+                overhead = symbol_dict[symbol_name]
+                overhead_list.append(float(overhead))
+            avg_overhead = np.mean(overhead_list)
+            branch_dict[symbol_name] = round(float(avg_overhead), 2)
+
+        instruction_dict = {}
+        for symbol_name in common_instruction_list:
+            overhead_list = []
+            for category_dict in record_dict.values():
+                symbol_dict = category_dict[Constant_Parameters.INSTRUCTIONS]
+                overhead = symbol_dict[symbol_name]
+                overhead_list.append(float(overhead))
+            avg_overhead = np.mean(overhead_list)
+            instruction_dict[symbol_name] = round(float(avg_overhead), 2)
+
+        sorted_cycle_symbol_dict = sorted(cycle_dict.items(), key=lambda x: x[1], reverse=True)
+        sorted_branch_symbol_dict = sorted(branch_dict.items(), key=lambda x: x[1], reverse=True)
+        sorted_instruction_symbol_dict = sorted(instruction_dict.items(), key=lambda x: x[1], reverse=True)
+
+        return dict(sorted_cycle_symbol_dict), dict(sorted_branch_symbol_dict), dict(sorted_instruction_symbol_dict)
+
     @sklearn.utils._testing.ignore_warnings(category=ConvergenceWarning)
     def run_top_record_analysis(self, cs_id_list, scenario_list):
         print('The record analysis of ' + str(scenario_list) + ' has been started.')
@@ -424,6 +500,32 @@ class TOP_Record_Analysis:
                           Constant_Parameters.NORMAL: cs_normal_record_dict}
         gs_record_dict = {Constant_Parameters.ATTACK: gs_attack_record_dict,
                           Constant_Parameters.NORMAL: gs_normal_record_dict}
+
+        attack_common_cycle_list, attack_common_branch_list, attack_common_instruction_list = \
+            self.__extract_cs_common_symbols(cs_record_dict[Constant_Parameters.ATTACK])
+        normal_common_cycle_list, normal_common_branch_list, normal_common_instruction_list = \
+            self.__extract_cs_common_symbols(cs_record_dict[Constant_Parameters.NORMAL])
+
+        attack_cs_cycle_symbol_dict, attack_cs_branch_symbol_dict, attack_cs_instruction_symbol_dict = \
+            self.__get_average_overhead_dict(attack_common_cycle_list, attack_common_branch_list,
+                                             attack_common_instruction_list, cs_record_dict[Constant_Parameters.ATTACK])
+        normal_cs_cycle_symbol_dict, normal_cs_branch_symbol_dict, normal_cs_instruction_symbol_dict = \
+            self.__get_average_overhead_dict(normal_common_cycle_list, normal_common_branch_list,
+                                             normal_common_instruction_list, cs_record_dict[Constant_Parameters.NORMAL])
+
+        attack_cs_symbol_dict = {Constant_Parameters.CYCLES: attack_cs_cycle_symbol_dict,
+                                 Constant_Parameters.BRANCH: attack_cs_branch_symbol_dict,
+                                 Constant_Parameters.INSTRUCTIONS: attack_cs_instruction_symbol_dict}
+        normal_cs_symbol_dict = {Constant_Parameters.CYCLES: normal_cs_cycle_symbol_dict,
+                                 Constant_Parameters.BRANCH: normal_cs_branch_symbol_dict,
+                                 Constant_Parameters.INSTRUCTIONS: normal_cs_instruction_symbol_dict}
+
+        cs_common_symbol_dict = {Constant_Parameters.ATTACK: attack_cs_symbol_dict,
+                                 Constant_Parameters.NORMAL: normal_cs_symbol_dict}
+
+        cs_common_symbol_file_path = cs_path + '/' + Constant_Parameters.CS_AVG_OVERHEAD_FILENAME
+        with open(cs_common_symbol_file_path, 'w') as f:
+            json.dump(cs_common_symbol_dict, f)
 
         cs_record_analysis_file_path = cs_path + '/' + Constant_Parameters.KERNEL_RECORD_FILENAME
         gs_record_analysis_file_path = gs_path + '/' + Constant_Parameters.KERNEL_RECORD_FILENAME

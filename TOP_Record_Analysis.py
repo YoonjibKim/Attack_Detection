@@ -3,6 +3,7 @@ import json
 import os
 import numpy as np
 import sklearn
+from scipy.sparse import csc_array
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import Constant_Parameters
@@ -512,7 +513,7 @@ class TOP_Record_Analysis:
         cs_attack_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_attack_record_dict)
         cs_normal_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_normal_record_dict)
         gs_attack_elbow_point_dict = self.__find_each_station_elbow_point_dict(gs_attack_record_dict)
-        gs_normal_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_normal_record_dict)
+        gs_normal_elbow_point_dict = self.__find_each_station_elbow_point_dict(gs_normal_record_dict)
 
         cs_path = processed_data_dir_path_dict + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
         gs_path = processed_data_dir_path_dict + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
@@ -583,3 +584,43 @@ class TOP_Record_Analysis:
             json.dump(cs_elbow_point_dict, f)
         with open(gs_elbow_point_file_path, 'w') as f:
             json.dump(gs_elbow_point_dict, f)
+
+    @classmethod
+    def calculate_total_elbow_points(cls):
+        print('BEST K saved.')
+        total_cs_elbow_point_dict = {}
+        total_gs_elbow_point_dict = {}
+        for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            cs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
+            gs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
+
+            cs_file_path = cs_dir_path + '/' + Constant_Parameters.CS_AVG_ELBOW_POINT_FILENAME
+            gs_file_path = gs_dir_path + '/' + Constant_Parameters.ELBOW_POINT_INFORMATION_FILE_NAME
+
+            with open(cs_file_path, 'r') as f:
+                cs_elbow_point_dict = json.load(f)
+            with open(gs_file_path, 'r') as f:
+                gs_elbow_point_dict = json.load(f)
+
+            attack_cs_elbow_point_dict = cs_elbow_point_dict[Constant_Parameters.ATTACK]
+            normal_cs_elbow_point_dict = cs_elbow_point_dict[Constant_Parameters.NORMAL]
+            attack_gs_elbow_point_dict = gs_elbow_point_dict[Constant_Parameters.ATTACK].popitem()[1]
+            normal_gs_elbow_point_dict = gs_elbow_point_dict[Constant_Parameters.NORMAL].popitem()[1]
+
+            param_cs_dict = {Constant_Parameters.ATTACK: attack_cs_elbow_point_dict,
+                             Constant_Parameters.NORMAL: normal_cs_elbow_point_dict}
+            param_gs_dict = {Constant_Parameters.ATTACK: attack_gs_elbow_point_dict,
+                             Constant_Parameters.NORMAL: normal_gs_elbow_point_dict}
+
+            total_cs_elbow_point_dict[scenario] = param_cs_dict
+            total_gs_elbow_point_dict[scenario] = param_gs_dict
+
+        cs_save_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.BEST_K + '/' \
+                       + Constant_Parameters.CS_BEST_FILENAME
+        gs_save_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.BEST_K + '/' \
+                       + Constant_Parameters.GS_BEST_FILENAME
+
+        with open(cs_save_path, 'w') as f:
+            json.dump(total_cs_elbow_point_dict, f)
+        with open(gs_save_path, 'w') as f:
+            json.dump(total_gs_elbow_point_dict, f)

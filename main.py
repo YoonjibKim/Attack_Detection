@@ -83,10 +83,11 @@ def Load_Dataset(experiment_flag):
             stat_parser = STAT_Parser(dataset_init)
             stat_parser.run()
     elif experiment_flag == Constant_Parameters.TOP:
-        for dataset_init in dataset_init_list:
-            top_parser = TOP_Parser(dataset_init)
-            top_parser.run()
-
+        # for dataset_init in dataset_init_list:
+        #     top_parser = TOP_Parser(dataset_init)
+        #     top_parser.run()
+        TOP_Parser.calculate_total_feature_size()
+        TOP_Parser.calculate_total_elbow_points()
     else:
         print('Wrong Experiment Choice')
 

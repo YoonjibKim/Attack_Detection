@@ -56,56 +56,163 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
     def run(self):
         self.run_top_record_analysis(self.__cs_id_list, self.__scenario_list)
 
-        # # all symbol information
-        # cs_sam_res_diff_and_mean_dict = self.__get_sam_res_diff_and_mean_dict(self.__cs_top_dict,
-        #                                                                       self.__cs_unique_intersection_symbol_dict)
-        # gs_sam_res_diff_and_mean_dict = self.__get_sam_res_diff_and_mean_dict(self.__gs_top_dict,
-        #                                                                       self.__gs_unique_intersection_symbol_dict)
-        #
-        # # combination reference symbols <- here
-        # cs_basis_symbol_dict = self.__get_reference_symbol_dict(self.__cs_unique_intersection_symbol_dict)
-        # gs_basis_symbol_dict = self.__get_reference_symbol_dict(self.__gs_unique_intersection_symbol_dict)
-        #
-        # # full individual feature
-        # cs_full_feature_dict = \
-        #     self.__get_full_individual_feature_dict(cs_basis_symbol_dict, cs_sam_res_diff_and_mean_dict,
-        #                                             self.__cs_top_dict)
-        # gs_full_feature_dict = \
-        #     self.__get_full_individual_feature_dict(gs_basis_symbol_dict, gs_sam_res_diff_and_mean_dict,
-        #                                             self.__gs_top_dict)
-        #
-        # # feature combination
-        # cs_comb_dict = self.__get_chosen_combination_dict(cs_full_feature_dict, self.__feature_count)
-        # gs_comb_dict = self.__get_chosen_combination_dict(gs_full_feature_dict, self.__feature_count)
-        #
-        # # final dataset
-        # cs_feature_dict = self.__get_combined_feature_dict(cs_comb_dict, cs_full_feature_dict)
-        # gs_feature_dict = self.__get_combined_feature_dict(gs_comb_dict, gs_full_feature_dict)
-        #
-        # # ml dataset
-        # cs_ml_feature_dict = self.__converting_to_ml_feature_list(cs_feature_dict)
-        # gs_ml_feature_dict = self.__converting_to_ml_feature_list(gs_feature_dict)
-        #
-        # self.__saving_data(self.__cs_unique_intersection_symbol_dict, Constant_Parameters.UNIQUE_INTERSECTION,
-        #                    Constant_Parameters.CS)
-        # self.__saving_data(self.__gs_unique_intersection_symbol_dict, Constant_Parameters.UNIQUE_INTERSECTION,
-        #                    Constant_Parameters.GS)
-        # self.__saving_data(self.__cs_top_dict, Constant_Parameters.TOP, Constant_Parameters.CS)
-        # self.__saving_data(self.__gs_top_dict, Constant_Parameters.TOP, Constant_Parameters.GS)
-        # self.__saving_data(cs_sam_res_diff_and_mean_dict, Constant_Parameters.SAM_RES_DIFF_AND_MEAN,
-        #                    Constant_Parameters.CS)
-        # self.__saving_data(gs_sam_res_diff_and_mean_dict, Constant_Parameters.SAM_RES_DIFF_AND_MEAN,
-        #                    Constant_Parameters.GS)
-        # self.__saving_data(cs_basis_symbol_dict, Constant_Parameters.BASIS_SYMBOL, Constant_Parameters.CS)
-        # self.__saving_data(gs_basis_symbol_dict, Constant_Parameters.BASIS_SYMBOL, Constant_Parameters.GS)
-        # self.__saving_data(cs_full_feature_dict, Constant_Parameters.FULL_FEATURE_INFORMATION, Constant_Parameters.CS)
-        # self.__saving_data(gs_full_feature_dict, Constant_Parameters.FULL_FEATURE_INFORMATION, Constant_Parameters.GS)
-        # self.__saving_data(cs_comb_dict, Constant_Parameters.FEATURE_COMBINATION, Constant_Parameters.CS)
-        # self.__saving_data(gs_comb_dict, Constant_Parameters.FEATURE_COMBINATION, Constant_Parameters.GS)
-        # self.__saving_data(cs_feature_dict, Constant_Parameters.FINAL_DATASET, Constant_Parameters.CS)
-        # self.__saving_data(gs_feature_dict, Constant_Parameters.FINAL_DATASET, Constant_Parameters.GS)
-        # self.__saving_ml_feature(cs_ml_feature_dict, self.__scenario_list, Constant_Parameters.CS)
-        # self.__saving_ml_feature(gs_ml_feature_dict, self.__scenario_list, Constant_Parameters.GS)
+        # all symbol information
+        cs_sam_res_diff_and_mean_dict = self.__get_sam_res_diff_and_mean_dict(self.__cs_top_dict,
+                                                                              self.__cs_unique_intersection_symbol_dict)
+        gs_sam_res_diff_and_mean_dict = self.__get_sam_res_diff_and_mean_dict(self.__gs_top_dict,
+                                                                              self.__gs_unique_intersection_symbol_dict)
+
+        # combination reference symbols <- here
+        cs_basis_symbol_dict = self.__get_reference_symbol_dict(self.__cs_unique_intersection_symbol_dict)
+        gs_basis_symbol_dict = self.__get_reference_symbol_dict(self.__gs_unique_intersection_symbol_dict)
+
+        # full individual feature
+        cs_full_feature_dict = \
+            self.__get_full_individual_feature_dict(cs_basis_symbol_dict, cs_sam_res_diff_and_mean_dict,
+                                                    self.__cs_top_dict)
+        gs_full_feature_dict = \
+            self.__get_full_individual_feature_dict(gs_basis_symbol_dict, gs_sam_res_diff_and_mean_dict,
+                                                    self.__gs_top_dict)
+
+        # feature combination
+        cs_comb_dict = self.__get_chosen_combination_dict(cs_full_feature_dict, self.__feature_count)
+        gs_comb_dict = self.__get_chosen_combination_dict(gs_full_feature_dict, self.__feature_count)
+
+        # final dataset
+        cs_feature_dict = self.__get_combined_feature_dict(cs_comb_dict, cs_full_feature_dict)
+        gs_feature_dict = self.__get_combined_feature_dict(gs_comb_dict, gs_full_feature_dict)
+
+        # ml dataset
+        cs_ml_feature_dict = self.__converting_to_ml_feature_list(cs_feature_dict)
+        gs_ml_feature_dict = self.__converting_to_ml_feature_list(gs_feature_dict)
+
+        self.__saving_data(self.__cs_unique_intersection_symbol_dict, Constant_Parameters.UNIQUE_INTERSECTION,
+                           Constant_Parameters.CS)
+        self.__saving_data(self.__gs_unique_intersection_symbol_dict, Constant_Parameters.UNIQUE_INTERSECTION,
+                           Constant_Parameters.GS)
+        self.__saving_data(self.__cs_top_dict, Constant_Parameters.TOP, Constant_Parameters.CS)
+        self.__saving_data(self.__gs_top_dict, Constant_Parameters.TOP, Constant_Parameters.GS)
+        self.__saving_data(cs_sam_res_diff_and_mean_dict, Constant_Parameters.SAM_RES_DIFF_AND_MEAN,
+                           Constant_Parameters.CS)
+        self.__saving_data(gs_sam_res_diff_and_mean_dict, Constant_Parameters.SAM_RES_DIFF_AND_MEAN,
+                           Constant_Parameters.GS)
+        self.__saving_data(cs_basis_symbol_dict, Constant_Parameters.BASIS_SYMBOL, Constant_Parameters.CS)
+        self.__saving_data(gs_basis_symbol_dict, Constant_Parameters.BASIS_SYMBOL, Constant_Parameters.GS)
+        self.__saving_data(cs_full_feature_dict, Constant_Parameters.FULL_FEATURE_INFORMATION, Constant_Parameters.CS)
+        self.__saving_data(gs_full_feature_dict, Constant_Parameters.FULL_FEATURE_INFORMATION, Constant_Parameters.GS)
+        self.__saving_data(cs_comb_dict, Constant_Parameters.FEATURE_COMBINATION, Constant_Parameters.CS)
+        self.__saving_data(gs_comb_dict, Constant_Parameters.FEATURE_COMBINATION, Constant_Parameters.GS)
+        self.__saving_data(cs_feature_dict, Constant_Parameters.FINAL_DATASET, Constant_Parameters.CS)
+        self.__saving_data(gs_feature_dict, Constant_Parameters.FINAL_DATASET, Constant_Parameters.GS)
+        self.__saving_ml_feature(cs_ml_feature_dict, self.__scenario_list, Constant_Parameters.CS)
+        self.__saving_ml_feature(gs_ml_feature_dict, self.__scenario_list, Constant_Parameters.GS)
+
+    @classmethod
+    def __get_target_symbol_dict(cls, final_dataset_dict):
+        param_1_dict = {}
+        for category_name, type_dict in final_dataset_dict.items():
+            param_2_dict = {}
+            for type_name, symbol_dict in type_dict.items():
+                if len(symbol_dict) > 0:
+                    temp_list = list(symbol_dict.keys())
+                    temp_str = temp_list[len(temp_list) - 1]
+
+                    temp_list = temp_str.split(',')
+                    chunk_list = []
+                    for temp_str in temp_list:
+                        chunk_str = temp_str.replace("\'", '')
+                        chunk_str = chunk_str.replace('[', '')
+                        chunk_str = chunk_str.replace(']', '')
+                        chunk_str = chunk_str.strip()
+                        chunk_list.append(chunk_str)
+
+                    param_2_dict[type_name] = chunk_list
+                else:
+                    param_2_dict[type_name] = None
+            param_1_dict[category_name] = param_2_dict
+            
+        return param_1_dict
+
+    @classmethod
+    def __get_target_symbol_size_dict(cls, target_symbol_dict, final_dataset_dict):
+        param_1_dict = {}
+        for category_name, type_dict in target_symbol_dict.items():
+            exclusive_symbol_list = type_dict[Constant_Parameters.EXCLUSIVE]
+            common_symbol_list = type_dict[Constant_Parameters.COMMON]
+
+            exclusive_dict = {}
+            if exclusive_symbol_list is not None:
+                for symbol_name in exclusive_symbol_list:
+                    exclusive_symbol_dict = final_dataset_dict[category_name][Constant_Parameters.EXCLUSIVE]
+                    temp_dict = exclusive_symbol_dict["['" + symbol_name + "']"]
+                    attack_data_point_dict = temp_dict[Constant_Parameters.ATTACK][Constant_Parameters.DATA_POINT]
+                    normal_data_point_dict = temp_dict[Constant_Parameters.NORMAL][Constant_Parameters.DATA_POINT]
+                    attack_symbol_dict = attack_data_point_dict[symbol_name]
+                    normal_symbol_dict = normal_data_point_dict[symbol_name]
+
+                    attack_symbol_size = len(list(attack_symbol_dict.values())[0])
+                    normal_symbol_size = len(list(normal_symbol_dict.values())[0])
+                    exclusive_dict[symbol_name] = {Constant_Parameters.ATTACK: attack_symbol_size,
+                                                   Constant_Parameters.NORMAL: normal_symbol_size}
+            else:
+                exclusive_dict = None
+
+            common_dict = {}
+            if common_symbol_list is not None:
+                for symbol_name in common_symbol_list:
+                    common_symbol_dict = final_dataset_dict[category_name][Constant_Parameters.COMMON]
+                    temp_dict = common_symbol_dict["['" + symbol_name + "']"]
+                    attack_data_point_dict = temp_dict[Constant_Parameters.ATTACK][Constant_Parameters.DATA_POINT]
+                    normal_data_point_dict = temp_dict[Constant_Parameters.NORMAL][Constant_Parameters.DATA_POINT]
+                    attack_symbol_dict = attack_data_point_dict[symbol_name]
+                    normal_symbol_dict = normal_data_point_dict[symbol_name]
+
+                    attack_symbol_size = len(list(attack_symbol_dict.values())[0])
+                    normal_symbol_size = len(list(normal_symbol_dict.values())[0])
+                    common_dict[symbol_name] = {Constant_Parameters.ATTACK: attack_symbol_size,
+                                                Constant_Parameters.NORMAL: normal_symbol_size}
+            else:
+                common_dict = None
+
+            param_1_dict[category_name] = {Constant_Parameters.EXCLUSIVE: exclusive_dict,
+                                           Constant_Parameters.COMMON: common_dict}
+
+        return param_1_dict
+
+    @classmethod
+    def calculate_total_feature_size(cls):
+        print('Total feature size saved.')
+        total_cs_symbol_size_dict = {}
+        total_gs_symbol_size_dict = {}
+        for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            cs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
+            gs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
+
+            cs_file_path = cs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
+            gs_file_path = gs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
+
+            with open(cs_file_path, 'r') as f:
+                cs_final_dataset_dict = json.load(f)
+            with open(gs_file_path, 'r') as f:
+                gs_final_dataset_dict = json.load(f)
+
+            cs_target_symbol_dict = cls.__get_target_symbol_dict(cs_final_dataset_dict)
+            gs_target_symbol_dict = cls.__get_target_symbol_dict(gs_final_dataset_dict)
+
+            cs_symbol_size_dict = cls.__get_target_symbol_size_dict(cs_target_symbol_dict, cs_final_dataset_dict)
+            gs_symbol_size_dict = cls.__get_target_symbol_size_dict(gs_target_symbol_dict, gs_final_dataset_dict)
+
+            total_cs_symbol_size_dict[scenario] = cs_symbol_size_dict
+            total_gs_symbol_size_dict[scenario] = gs_symbol_size_dict
+
+        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.FEATURE_SIZE
+        cs_save_path = save_dir_path + '/' + Constant_Parameters.CS_FEATURE_SIZE_FILENAME
+        gs_save_path = save_dir_path + '/' + Constant_Parameters.GS_FEATURE_SIZE_FILENAME
+
+        with open(cs_save_path, 'w') as f:
+            json.dump(total_cs_symbol_size_dict, f)
+        with open(gs_save_path, 'w') as f:
+            json.dump(total_gs_symbol_size_dict, f)
 
     @classmethod
     def __converting_to_ml_feature_list(cls, feature_dict):

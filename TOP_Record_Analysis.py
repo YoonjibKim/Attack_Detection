@@ -269,7 +269,7 @@ class TOP_Record_Analysis:
 
         return k_score_dict[0], k_score_dict
 
-    def __find_elbow_point(self, record_dict: dict):
+    def __find_each_station_elbow_point_dict(self, record_dict: dict):
         param_3_dict = {}
         for station_id, category_dict in record_dict.items():
             param_1_dict = {}
@@ -364,6 +364,42 @@ class TOP_Record_Analysis:
         sorted_instruction_symbol_dict = sorted(instruction_dict.items(), key=lambda x: x[1], reverse=True)
 
         return dict(sorted_cycle_symbol_dict), dict(sorted_branch_symbol_dict), dict(sorted_instruction_symbol_dict)
+
+    @sklearn.utils._testing.ignore_warnings(category=ConvergenceWarning)
+    def __find_avg_cs_elbow_point_dict(self, cs_common_symbol_dict):
+        attack_dict = cs_common_symbol_dict[Constant_Parameters.ATTACK]
+        normal_dict = cs_common_symbol_dict[Constant_Parameters.NORMAL]
+
+        attack_overhead_dict = {}
+        for category_name, symbol_dict in attack_dict.items():
+            overhead_list = list(symbol_dict.values())
+            best_score_tuple, all_score_tuple_list = self.__calculate_silhouette_score_tuple(overhead_list)
+            best_k = best_score_tuple[0]
+            best_score = best_score_tuple[1]
+            other_scores = all_score_tuple_list
+
+            param_dict = {Constant_Parameters.BEST_K: best_k, Constant_Parameters.BEST_SILHOUETTE_SCORE: best_score,
+                          Constant_Parameters.OTHER_SILHOUETTE_SCORES: other_scores}
+
+            attack_overhead_dict[category_name] = param_dict
+
+        normal_overhead_dict = {}
+        for category_name, symbol_dict in normal_dict.items():
+            overhead_list = list(symbol_dict.values())
+            best_score_tuple, all_score_tuple_list = self.__calculate_silhouette_score_tuple(overhead_list)
+            best_k = best_score_tuple[0]
+            best_score = best_score_tuple[1]
+            other_scores = all_score_tuple_list
+
+            param_dict = {Constant_Parameters.BEST_K: best_k, Constant_Parameters.BEST_SILHOUETTE_SCORE: best_score,
+                          Constant_Parameters.OTHER_SILHOUETTE_SCORES: other_scores}
+
+            normal_overhead_dict[category_name] = param_dict
+
+        avg_elbow_point_dict = {Constant_Parameters.ATTACK: attack_overhead_dict,
+                                Constant_Parameters.NORMAL: normal_overhead_dict}
+
+        return avg_elbow_point_dict
 
     @sklearn.utils._testing.ignore_warnings(category=ConvergenceWarning)
     def run_top_record_analysis(self, cs_id_list, scenario_list):
@@ -473,10 +509,10 @@ class TOP_Record_Analysis:
         gs_attack_ratio_dict = self.__get_symbol_ratio_and_index(gs_attack_record_dict, gs_basic_feature_comb_dict)
         gs_normal_ratio_dict = self.__get_symbol_ratio_and_index(gs_normal_record_dict, gs_basic_feature_comb_dict)
 
-        cs_attack_elbow_point_dict = self.__find_elbow_point(cs_attack_record_dict)
-        cs_normal_elbow_point_dict = self.__find_elbow_point(cs_normal_record_dict)
-        gs_attack_elbow_point_dict = self.__find_elbow_point(gs_attack_record_dict)
-        gs_normal_elbow_point_dict = self.__find_elbow_point(cs_normal_record_dict)
+        cs_attack_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_attack_record_dict)
+        cs_normal_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_normal_record_dict)
+        gs_attack_elbow_point_dict = self.__find_each_station_elbow_point_dict(gs_attack_record_dict)
+        gs_normal_elbow_point_dict = self.__find_each_station_elbow_point_dict(cs_normal_record_dict)
 
         cs_path = processed_data_dir_path_dict + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
         gs_path = processed_data_dir_path_dict + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
@@ -522,6 +558,11 @@ class TOP_Record_Analysis:
 
         cs_common_symbol_dict = {Constant_Parameters.ATTACK: attack_cs_symbol_dict,
                                  Constant_Parameters.NORMAL: normal_cs_symbol_dict}
+
+        cs_avg_elbow_point_dict = self.__find_avg_cs_elbow_point_dict(cs_common_symbol_dict)
+        cs_avg_elbow_point_file_path = cs_path + '/' + Constant_Parameters.CS_AVG_ELBOW_POINT_FILENAME
+        with open(cs_avg_elbow_point_file_path, 'w') as f:
+            json.dump(cs_avg_elbow_point_dict, f)
 
         cs_common_symbol_file_path = cs_path + '/' + Constant_Parameters.CS_AVG_OVERHEAD_FILENAME
         with open(cs_common_symbol_file_path, 'w') as f:

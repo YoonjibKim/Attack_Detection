@@ -624,3 +624,61 @@ class TOP_Record_Analysis:
             json.dump(total_cs_elbow_point_dict, f)
         with open(gs_save_path, 'w') as f:
             json.dump(total_gs_elbow_point_dict, f)
+
+    @classmethod
+    def __get_overhead_ratio_and_index(cls, data_dict: dict):
+        param_3_dict = {}
+        for category_name, type_dict in data_dict.items():
+            param_2_dict = {}
+            for type_name, symbol_dict in type_dict.items():
+                param_1_dict = {}
+                for symbol_name, temp_dict in symbol_dict.items():
+                    overhead_ratio_mean = temp_dict[Constant_Parameters.OVERHEAD_RATIO_MEAN]
+                    symbol_index_mean = temp_dict[Constant_Parameters.SYMBOL_INDEX_MEAN]
+                    param_1_dict[symbol_name] = {Constant_Parameters.OVERHEAD_RATIO_MEAN: overhead_ratio_mean,
+                                                 Constant_Parameters.SYMBOL_INDEX_MEAN: symbol_index_mean}
+                param_2_dict[type_name] = param_1_dict
+            param_3_dict[category_name] = param_2_dict
+
+        return param_3_dict
+
+    @classmethod
+    def extract_overhead_ratio_and_index(cls):
+        print('Overhead and Index saved.')
+
+        cs_dict = {}
+        gs_dict = {}
+        for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            cs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
+            gs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
+            cs_file_path = cs_dir_path + '/' + Constant_Parameters.RATIO_INFORMATION_FILE_NAME
+            gs_file_path = gs_dir_path + '/' + Constant_Parameters.RATIO_INFORMATION_FILE_NAME
+
+            with open(cs_file_path, 'r') as f:
+                cs_ratio_dict = json.load(f)
+            with open(gs_file_path, 'r') as f:
+                gs_ratio_dict = json.load(f)
+
+            cs_attack_dict = cs_ratio_dict[Constant_Parameters.ATTACK]
+            cs_normal_dict = cs_ratio_dict[Constant_Parameters.NORMAL]
+            cs_attack_overhead_dict = cls.__get_overhead_ratio_and_index(cs_attack_dict)
+            cs_normal_overhead_dict = cls.__get_overhead_ratio_and_index(cs_normal_dict)
+
+            gs_attack_dict = gs_ratio_dict[Constant_Parameters.ATTACK]
+            gs_normal_dict = gs_ratio_dict[Constant_Parameters.NORMAL]
+            gs_attack_overhead_dict = cls.__get_overhead_ratio_and_index(gs_attack_dict)
+            gs_normal_overhead_dict = cls.__get_overhead_ratio_and_index(gs_normal_dict)
+
+            cs_dict[scenario] = {Constant_Parameters.ATTACK: cs_attack_overhead_dict,
+                                 Constant_Parameters.NORMAL: cs_normal_overhead_dict}
+            gs_dict[scenario] = {Constant_Parameters.ATTACK: gs_attack_overhead_dict,
+                                 Constant_Parameters.NORMAL: gs_normal_overhead_dict}
+
+        root_save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.OVERHEAD_INDEX
+        cs_save_path = root_save_dir_path + '/' + Constant_Parameters.CS_OVERHEAD_INDEX_FILENAME
+        gs_save_path = root_save_dir_path + '/' + Constant_Parameters.GS_OVERHEAD_INDEX_FILENAME
+
+        with open(cs_save_path, 'w') as f:
+            json.dump(cs_dict, f)
+        with open(gs_save_path, 'w') as f:
+            json.dump(gs_dict, f)

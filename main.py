@@ -86,6 +86,7 @@ def Load_Dataset(experiment_flag):
         # for dataset_init in dataset_init_list:
         #     top_parser = TOP_Parser(dataset_init)
         #     top_parser.run()
+        TOP_Parser.extract_overhead_ratio_and_index()
         TOP_Parser.calculate_total_feature_size()
         TOP_Parser.calculate_total_elbow_points()
     else:

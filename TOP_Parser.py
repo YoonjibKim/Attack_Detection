@@ -182,6 +182,7 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
     @classmethod
     def calculate_total_feature_size(cls):
         print('Total feature size saved.')
+
         total_cs_symbol_size_dict = {}
         total_gs_symbol_size_dict = {}
         for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
@@ -718,7 +719,11 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
             same_size_flag = False
 
         if same_size_flag:
-            result = largest_size / smallest_size
+            try:
+                result = largest_size / smallest_size
+            except ZeroDivisionError:
+                result = 0
+
             quotient = math.floor(result)
             remainder = result - quotient
             total_remainder = 0

@@ -3,7 +3,6 @@ import json
 import os
 import numpy as np
 import sklearn
-from scipy.sparse import csc_array
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import Constant_Parameters
@@ -251,7 +250,15 @@ class TOP_Record_Analysis:
 
     @classmethod
     def __calculate_silhouette_score_tuple(cls, data_list) -> tuple:
-        k_size = round(len(data_list) / 10)
+        std_val = np.std(data_list)
+        std_mean = np.mean(data_list)
+        boundary = std_mean + std_val
+        sampled_data_list = []
+        for overhead in data_list:
+            if overhead >= boundary:
+                sampled_data_list.append(overhead)
+
+        k_size = len(sampled_data_list)
         k_list = list(k for k in range(2, k_size))
         data_array = np.array(data_list).reshape(-1, 1)
 
@@ -268,7 +275,12 @@ class TOP_Record_Analysis:
 
         k_score_dict = sorted(k_score_dict.items(), key=lambda x: x[1], reverse=True)
 
-        return k_score_dict[0], k_score_dict
+        if len(k_score_dict) < 1:
+            best_k_dict = None
+        else:
+            best_k_dict = k_score_dict[0]
+
+        return best_k_dict, k_score_dict
 
     def __find_each_station_elbow_point_dict(self, record_dict: dict):
         param_3_dict = {}
@@ -277,8 +289,13 @@ class TOP_Record_Analysis:
             for category_name, symbol_dict in category_dict.items():
                 overhead_list = list(float(data) for data in symbol_dict.values())
                 best_score_tuple, all_score_tuple_list = self.__calculate_silhouette_score_tuple(overhead_list)
-                best_k = best_score_tuple[0]
-                best_score = best_score_tuple[1]
+                if best_score_tuple is None:
+                    best_k = Constant_Parameters.DUMMY_DATA
+                    best_score = Constant_Parameters.DUMMY_DATA
+                else:
+                    best_k = best_score_tuple[0]
+                    best_score = best_score_tuple[1]
+
                 other_scores = all_score_tuple_list
 
                 param_2_dict = {Constant_Parameters.BEST_K: best_k,
@@ -375,8 +392,12 @@ class TOP_Record_Analysis:
         for category_name, symbol_dict in attack_dict.items():
             overhead_list = list(symbol_dict.values())
             best_score_tuple, all_score_tuple_list = self.__calculate_silhouette_score_tuple(overhead_list)
-            best_k = best_score_tuple[0]
-            best_score = best_score_tuple[1]
+            if best_score_tuple is not None:
+                best_k = best_score_tuple[0]
+                best_score = best_score_tuple[1]
+            else:
+                best_k = Constant_Parameters.DUMMY_DATA
+                best_score = Constant_Parameters.DUMMY_DATA
             other_scores = all_score_tuple_list
 
             param_dict = {Constant_Parameters.BEST_K: best_k, Constant_Parameters.BEST_SILHOUETTE_SCORE: best_score,
@@ -388,8 +409,12 @@ class TOP_Record_Analysis:
         for category_name, symbol_dict in normal_dict.items():
             overhead_list = list(symbol_dict.values())
             best_score_tuple, all_score_tuple_list = self.__calculate_silhouette_score_tuple(overhead_list)
-            best_k = best_score_tuple[0]
-            best_score = best_score_tuple[1]
+            if best_score_tuple is not None:
+                best_k = best_score_tuple[0]
+                best_score = best_score_tuple[1]
+            else:
+                best_k = Constant_Parameters.DUMMY_DATA
+                best_score = Constant_Parameters.DUMMY_DATA
             other_scores = all_score_tuple_list
 
             param_dict = {Constant_Parameters.BEST_K: best_k, Constant_Parameters.BEST_SILHOUETTE_SCORE: best_score,
@@ -543,6 +568,57 @@ class TOP_Record_Analysis:
         normal_common_cycle_list, normal_common_branch_list, normal_common_instruction_list = \
             self.__extract_cs_common_symbols(cs_record_dict[Constant_Parameters.NORMAL])
 
+        cs_attack_cycle_size = len(attack_common_cycle_list)
+        cs_attack_branch_size = len(attack_common_branch_list)
+        cs_attack_instruction_size = len(attack_common_instruction_list)
+        cs_normal_cycle_size = len(normal_common_cycle_list)
+        cs_normal_branch_size = len(normal_common_branch_list)
+        cs_normal_instruction_size = len(normal_common_instruction_list)
+
+        cs_attack_size_dict = {Constant_Parameters.CYCLES: cs_attack_cycle_size,
+                               Constant_Parameters.BRANCH: cs_attack_branch_size,
+                               Constant_Parameters.INSTRUCTIONS: cs_attack_instruction_size}
+        cs_normal_size_dict = {Constant_Parameters.CYCLES: cs_normal_cycle_size,
+                               Constant_Parameters.BRANCH: cs_normal_branch_size,
+                               Constant_Parameters.INSTRUCTIONS: cs_normal_instruction_size}
+
+        cs_size_dict = {Constant_Parameters.ATTACK: cs_attack_size_dict,
+                        Constant_Parameters.NORMAL: cs_normal_size_dict}
+
+        gs_attack_dict = list(gs_record_dict[Constant_Parameters.ATTACK].values())[0]
+        gs_normal_dict = list(gs_record_dict[Constant_Parameters.NORMAL].values())[0]
+
+        gs_attack_cycle_dict = gs_attack_dict[Constant_Parameters.CYCLES]
+        gs_attack_branch_dict = gs_attack_dict[Constant_Parameters.BRANCH]
+        gs_attack_instruction_dict = gs_attack_dict[Constant_Parameters.INSTRUCTIONS]
+        gs_normal_cycle_dict = gs_normal_dict[Constant_Parameters.CYCLES]
+        gs_normal_branch_dict = gs_normal_dict[Constant_Parameters.BRANCH]
+        gs_normal_instruction_dict = gs_normal_dict[Constant_Parameters.INSTRUCTIONS]
+
+        gs_attack_cycle_size = len(gs_attack_cycle_dict)
+        gs_attack_branch_size = len(gs_attack_branch_dict)
+        gs_attack_instruction_size = len(gs_attack_instruction_dict)
+        gs_normal_cycle_size = len(gs_normal_cycle_dict)
+        gs_normal_branch_size = len(gs_normal_branch_dict)
+        gs_normal_instruction_size = len(gs_normal_instruction_dict)
+
+        gs_attack_size_dict = {Constant_Parameters.CYCLES: gs_attack_cycle_size,
+                               Constant_Parameters.BRANCH: gs_attack_branch_size,
+                               Constant_Parameters.INSTRUCTIONS: gs_attack_instruction_size}
+        gs_normal_size_dict = {Constant_Parameters.CYCLES: gs_normal_cycle_size,
+                               Constant_Parameters.BRANCH: gs_normal_branch_size,
+                               Constant_Parameters.INSTRUCTIONS: gs_normal_instruction_size}
+
+        gs_size_dict = {Constant_Parameters.ATTACK: gs_attack_size_dict,
+                        Constant_Parameters.NORMAL: gs_normal_size_dict}
+
+        cs_record_size_file_path = cs_path + '/' + Constant_Parameters.CS_RECORD_SIZE_FILENAME
+        gs_record_size_file_path = gs_path + '/' + Constant_Parameters.GS_RECORD_SIZE_FILENAME
+        with open(cs_record_size_file_path, 'w') as f:
+            json.dump(cs_size_dict, f)
+        with open(gs_record_size_file_path, 'w') as f:
+            json.dump(gs_size_dict, f)
+
         attack_cs_cycle_symbol_dict, attack_cs_branch_symbol_dict, attack_cs_instruction_symbol_dict = \
             self.__get_average_overhead_dict(attack_common_cycle_list, attack_common_branch_list,
                                              attack_common_instruction_list, cs_record_dict[Constant_Parameters.ATTACK])
@@ -588,6 +664,7 @@ class TOP_Record_Analysis:
     @classmethod
     def calculate_total_elbow_points(cls):
         print('BEST K saved.')
+
         total_cs_elbow_point_dict = {}
         total_gs_elbow_point_dict = {}
         for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
@@ -682,3 +759,81 @@ class TOP_Record_Analysis:
             json.dump(cs_dict, f)
         with open(gs_save_path, 'w') as f:
             json.dump(gs_dict, f)
+
+    @classmethod
+    def __extract_other_silhouette_scores(cls):
+        print('cluster sizes saved.')
+
+        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.BEST_K
+
+        cs_load_path = save_dir_path + '/' + Constant_Parameters.CS_BEST_FILENAME
+        gs_load_path = save_dir_path + '/' + Constant_Parameters.GS_BEST_FILENAME
+
+        with open(cs_load_path, 'r') as f:
+            cs_dict = json.load(f)
+        with open(gs_load_path, 'r') as f:
+            gs_dict = json.load(f)
+
+        cs_size_dict = {}
+        for scenario, type_dict in cs_dict.items():
+            param_1_dict = {}
+            for type_name, category_dict in type_dict.items():
+                param_2_dict = {}
+                for category_name, temp_dict in category_dict.items():
+                    score_list = temp_dict[Constant_Parameters.OTHER_SILHOUETTE_SCORES]
+                    size = len(score_list)
+                    param_2_dict[category_name] = size
+                param_1_dict[type_name] = param_2_dict
+            cs_size_dict[scenario] = param_1_dict
+
+        gs_size_dict = {}
+        for scenario, type_dict in gs_dict.items():
+            param_1_dict = {}
+            for type_name, category_dict in type_dict.items():
+                param_2_dict = {}
+                for category_name, temp_dict in category_dict.items():
+                    score_list = temp_dict[Constant_Parameters.OTHER_SILHOUETTE_SCORES]
+                    size = len(score_list)
+                    param_2_dict[category_name] = size
+                param_1_dict[type_name] = param_2_dict
+            gs_size_dict[scenario] = param_1_dict
+
+        cs_save_path = save_dir_path + '/' + Constant_Parameters.CS_K_SIZE_FILENAME
+        gs_save_path = save_dir_path + '/' + Constant_Parameters.GS_K_SIZE_FILENAME
+
+        with open(cs_save_path, 'w') as f:
+            json.dump(cs_size_dict, f)
+        with open(gs_save_path, 'w') as f:
+            json.dump(gs_size_dict, f)
+
+    @classmethod
+    def extract_record_size(cls):
+        print('Record size savved.')
+
+        total_cs_dict = {}
+        total_gs_dict = {}
+        for scenario, root_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            cs_dir_path = root_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
+            gs_dir_path = root_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
+
+            cs_file_path = cs_dir_path + '/' + Constant_Parameters.CS_RECORD_SIZE_FILENAME
+            gs_file_path = gs_dir_path + '/' + Constant_Parameters.GS_RECORD_SIZE_FILENAME
+
+            with open(cs_file_path, 'r') as f:
+                cs_record_dict = json.load(f)
+            with open(gs_file_path, 'r') as f:
+                gs_record_dict = json.load(f)
+
+            total_cs_dict[scenario] = cs_record_dict
+            total_gs_dict[scenario] = gs_record_dict
+
+        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.RECORD_SIZE
+        cs_save_file_path = save_dir_path + '/' + Constant_Parameters.CS_RECORD_SIZE_FILENAME
+        gs_save_file_path = save_dir_path + '/' + Constant_Parameters.GS_RECORD_SIZE_FILENAME
+
+        with open(cs_save_file_path, 'w') as f:
+            json.dump(total_cs_dict, f)
+        with open(gs_save_file_path, 'w') as f:
+            json.dump(total_gs_dict, f)
+
+        cls.__extract_other_silhouette_scores()

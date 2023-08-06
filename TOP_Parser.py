@@ -1151,7 +1151,7 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
         return dataset_dict
 
     @classmethod
-    def __get_total_feature_size_dict(cls, station_dict):
+    def __get_cs_total_feature_size_dict(cls, station_dict):
         param_3_dict = {}
         for category_name, type_dict in station_dict.items():
             param_2_dict = {}
@@ -1177,6 +1177,30 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
         return param_3_dict
 
     @classmethod
+    def __get_gs_total_feature_size_dict(cls, station_dict):
+        param_3_dict = {}
+        for category_name, type_dict in station_dict.items():
+            param_2_dict = {}
+            for type_name, symbol_list_dict in type_dict.items():
+                param_1_dict = {}
+                for symbol_list_name, temp_dict in symbol_list_dict.items():
+                    attack_dict = temp_dict[Constant_Parameters.ATTACK][Constant_Parameters.DATA_POINT]
+                    normal_dict = temp_dict[Constant_Parameters.NORMAL][Constant_Parameters.DATA_POINT]
+
+                    attack_list = list(attack_dict.values())[0][Constant_Parameters.GS_ID]
+                    normal_list = list(normal_dict.values())[0][Constant_Parameters.GS_ID]
+
+                    attack_size = len(attack_list)
+                    normal_size = len(normal_list)
+
+                    param_1_dict[symbol_list_name] = {Constant_Parameters.ATTACK: attack_size,
+                                                      Constant_Parameters.NORMAL: normal_size}
+                param_2_dict[type_name] = param_1_dict
+            param_3_dict[category_name] = param_2_dict
+
+        return param_3_dict
+
+    @classmethod
     def extract_all_feature_size(cls):
         cs_size_dict = {}
         gs_size_dict = {}
@@ -1193,8 +1217,8 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
             with open(gs_file_path, 'r') as f:
                 gs_dict = json.load(f)
 
-            cs_temp_dict = cls.__get_total_feature_size_dict(cs_dict)
-            gs_temp_dict = cls.__get_total_feature_size_dict(gs_dict)
+            cs_temp_dict = cls.__get_cs_total_feature_size_dict(cs_dict)
+            gs_temp_dict = cls.__get_gs_total_feature_size_dict(gs_dict)
 
             cs_size_dict[scenario] = cs_temp_dict
             gs_size_dict[scenario] = gs_temp_dict
@@ -1206,4 +1230,4 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
         with open(cs_save_file_path, 'w') as f:
             json.dump(cs_size_dict, f)
         with open(gs_save_file_path, 'w') as f:
-            json.dump(gs_temp_dict, f)
+            json.dump(gs_size_dict, f)

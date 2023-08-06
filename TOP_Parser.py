@@ -130,7 +130,7 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                 else:
                     param_2_dict[type_name] = None
             param_1_dict[category_name] = param_2_dict
-            
+
         return param_1_dict
 
     @classmethod
@@ -1149,3 +1149,61 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
             dataset_dict = json.load(f)
 
         return dataset_dict
+
+    @classmethod
+    def __get_total_feature_size_dict(cls, station_dict):
+        param_3_dict = {}
+        for category_name, type_dict in station_dict.items():
+            param_2_dict = {}
+            for type_name, symbol_list_dict in type_dict.items():
+                param_1_dict = {}
+                for symbol_list_name, temp_dict in symbol_list_dict.items():
+                    attack_dict = temp_dict[Constant_Parameters.ATTACK]
+                    normal_dict = temp_dict[Constant_Parameters.NORMAL]
+                    attack_data_point_list = \
+                        list(list(attack_dict[Constant_Parameters.DATA_POINT].values())[0].values())[0]
+                    normal_data_point_list = \
+                        list(list(normal_dict[Constant_Parameters.DATA_POINT].values())[0].values())[0]
+
+                    attack_size = len(attack_data_point_list)
+                    normal_size = len(normal_data_point_list)
+
+                    param_1_dict[symbol_list_name] = {Constant_Parameters.ATTACK: attack_size,
+                                                      Constant_Parameters.NORMAL: normal_size}
+
+                param_2_dict[type_name] = param_1_dict
+            param_3_dict[category_name] = param_2_dict
+
+        return param_3_dict
+
+    @classmethod
+    def extract_all_feature_size(cls):
+        cs_size_dict = {}
+        gs_size_dict = {}
+        for scenario, path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            root_path = path + '/' + Constant_Parameters.TOP
+            cs_dir_path = root_path + '/' + Constant_Parameters.CS
+            gs_dir_path = root_path + '/' + Constant_Parameters.GS
+
+            cs_file_path = cs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
+            gs_file_path = gs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
+
+            with open(cs_file_path, 'r') as f:
+                cs_dict = json.load(f)
+            with open(gs_file_path, 'r') as f:
+                gs_dict = json.load(f)
+
+            cs_temp_dict = cls.__get_total_feature_size_dict(cs_dict)
+            gs_temp_dict = cls.__get_total_feature_size_dict(gs_dict)
+
+            cs_size_dict[scenario] = cs_temp_dict
+            gs_size_dict[scenario] = gs_temp_dict
+
+        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.FEATURE_SIZE
+        cs_save_file_path = save_dir_path + '/' + Constant_Parameters.CS_ALL_FEATURE_SIZE_FILENAME
+        gs_save_file_path = save_dir_path + '/' + Constant_Parameters.GS_ALL_FEATURE_SIZE_FILENAME
+
+        with open(cs_save_file_path, 'w') as f:
+            json.dump(cs_size_dict, f)
+        with open(gs_save_file_path, 'w') as f:
+            json.dump(gs_temp_dict, f)

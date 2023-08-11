@@ -250,7 +250,7 @@ class TOP_Analyser:
                                                      Constant_Parameters.NORMAL: normal_cs_dict}
                         param_2_dict[symbol_name] = {Constant_Parameters.ATTACK: attack_csr,
                                                      Constant_Parameters.NORMAL: normal_csr}
-
+                        
                 if zero_flag:
                     break
 

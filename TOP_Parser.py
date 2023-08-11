@@ -320,7 +320,7 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                         temp_normal_CSR = param_normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
 
                         if temp_attack_CSR > 0:
-                            temp_attack_CSR_diff += (temp_attack_CSR * (1 + temp_attack_CSR - attack_min_CSR))
+                            temp_attack_CSR_diff += (temp_attack_CSR / np.exp(temp_attack_CSR - attack_min_CSR))
                             param_attack_dict = \
                                 cls.__get_reduced_data_point_dict(attack_min_size,
                                                                   param_attack_dict[Constant_Parameters.DATA_POINT])
@@ -330,7 +330,7 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                                                                 param_attack_dict[Constant_Parameters.DATA_POINT])
 
                         if temp_normal_CSR > 0:
-                            temp_normal_CSR_diff += (temp_normal_CSR * (1 + temp_normal_CSR - normal_min_CSR))
+                            temp_normal_CSR_diff += (temp_normal_CSR / np.exp(temp_normal_CSR - normal_min_CSR))
                             param_normal_dict = \
                                 cls.__get_reduced_data_point_dict(normal_min_size,
                                                                   param_normal_dict[Constant_Parameters.DATA_POINT])

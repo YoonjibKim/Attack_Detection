@@ -208,3 +208,68 @@ class TOP_Analyser:
             json.dump(cs_best_score_dict, f)
         with open(gs_save_path, 'w') as f:
             json.dump(gs_best_score_dict, f)
+
+    @classmethod
+    def proof_csr(cls):
+        total_cs_common_dataset_dict = {}
+        total_cs_common_csr_dict = {}
+
+        for scenario, path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
+            cs_dir_path = path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
+            cs_processed_path = cs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
+            cs_original_path = cs_dir_path + '/' + Constant_Parameters.TOP + '.json'
+
+            with open(cs_processed_path, 'r') as f:
+                cs_processed_dict = json.load(f)
+            with open(cs_original_path, 'r') as f:
+                cs_original_dict = json.load(f)
+
+            cs_common_dataset_dict = {}
+            cs_common_csr_dict = {}
+
+            zero_flag = False
+            for category_name, type_dict in cs_processed_dict.items():
+                symbol_list_dict = type_dict[Constant_Parameters.COMMON]
+                if len(symbol_list_dict) < 1:
+                    zero_flag = True
+                    break
+
+                param_1_dict = {}
+                param_2_dict = {}
+                for symbol_comb, temp_dict in symbol_list_dict.items():
+                    if ',' not in symbol_comb:
+                        attack_dict = temp_dict[Constant_Parameters.ATTACK]
+                        normal_dict = temp_dict[Constant_Parameters.NORMAL]
+                        attack_csr = attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                        normal_csr = normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                        symbol_name = list(attack_dict[Constant_Parameters.DATA_POINT].keys())[0]
+                        attack_cs_dict = attack_dict[Constant_Parameters.DATA_POINT][symbol_name]
+                        normal_cs_dict = attack_dict[Constant_Parameters.DATA_POINT][symbol_name]
+
+                        param_1_dict[symbol_name] = {Constant_Parameters.ATTACK: attack_cs_dict,
+                                                     Constant_Parameters.NORMAL: normal_cs_dict}
+                        param_2_dict[symbol_name] = {Constant_Parameters.ATTACK: attack_csr,
+                                                     Constant_Parameters.NORMAL: normal_csr}
+
+                if zero_flag:
+                    break
+
+                temp_dict = list(symbol_list_dict.values())[len(symbol_list_dict) - 1]
+                attack_dict = temp_dict[Constant_Parameters.ATTACK]
+                normal_dict = temp_dict[Constant_Parameters.NORMAL]
+                attack_csr = attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                normal_csr = normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                attack_cs_dict = attack_dict[Constant_Parameters.DATA_POINT]
+                normal_cs_dict = attack_dict[Constant_Parameters.DATA_POINT]
+                param_3_dict = {Constant_Parameters.ATTACK: attack_cs_dict, Constant_Parameters.NORMAL: normal_cs_dict}
+                param_4_dict = {Constant_Parameters.ATTACK: attack_csr, Constant_Parameters.NORMAL: normal_csr}
+                cs_common_dataset_dict[category_name] = {Constant_Parameters.BASIS_SYMBOL: param_1_dict,
+                                                         Constant_Parameters.COMBINED_SYMBOL: param_3_dict}
+                cs_common_csr_dict[category_name] = {Constant_Parameters.BASIS_SYMBOL: param_2_dict,
+                                                     Constant_Parameters.COMBINED_SYMBOL: param_4_dict}
+
+            if zero_flag is False:
+                total_cs_common_dataset_dict[scenario] = cs_common_dataset_dict
+                total_cs_common_csr_dict[scenario] = cs_common_csr_dict
+
+        print()

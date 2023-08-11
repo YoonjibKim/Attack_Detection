@@ -90,7 +90,8 @@ def Load_Dataset(experiment_flag):
         # TOP_Parser.calculate_total_feature_size()
         # TOP_Parser.calculate_total_elbow_points()
         # TOP_Parser.extract_record_size()
-        TOP_Parser.extract_all_feature_size()
+        # TOP_Parser.extract_all_feature_size()
+        TOP_Analyser.proof_csr()
     else:
         print('Wrong Experiment Choice')
 

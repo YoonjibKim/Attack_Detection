@@ -180,42 +180,6 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
         return param_1_dict
 
     @classmethod
-    def calculate_total_feature_size(cls):
-        print('Total feature size saved.')
-
-        total_cs_symbol_size_dict = {}
-        total_gs_symbol_size_dict = {}
-        for scenario, root_dir_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
-            cs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.CS
-            gs_dir_path = root_dir_path + '/' + Constant_Parameters.TOP + '/' + Constant_Parameters.GS
-
-            cs_file_path = cs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
-            gs_file_path = gs_dir_path + '/' + Constant_Parameters.FINAL_DATASET + '.json'
-
-            with open(cs_file_path, 'r') as f:
-                cs_final_dataset_dict = json.load(f)
-            with open(gs_file_path, 'r') as f:
-                gs_final_dataset_dict = json.load(f)
-
-            cs_target_symbol_dict = cls.__get_target_symbol_dict(cs_final_dataset_dict)
-            gs_target_symbol_dict = cls.__get_target_symbol_dict(gs_final_dataset_dict)
-
-            cs_symbol_size_dict = cls.__get_target_symbol_size_dict(cs_target_symbol_dict, cs_final_dataset_dict)
-            gs_symbol_size_dict = cls.__get_target_symbol_size_dict(gs_target_symbol_dict, gs_final_dataset_dict)
-
-            total_cs_symbol_size_dict[scenario] = cs_symbol_size_dict
-            total_gs_symbol_size_dict[scenario] = gs_symbol_size_dict
-
-        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.FEATURE_SIZE
-        cs_save_path = save_dir_path + '/' + Constant_Parameters.CS_FEATURE_SIZE_FILENAME
-        gs_save_path = save_dir_path + '/' + Constant_Parameters.GS_FEATURE_SIZE_FILENAME
-
-        with open(cs_save_path, 'w') as f:
-            json.dump(total_cs_symbol_size_dict, f)
-        with open(gs_save_path, 'w') as f:
-            json.dump(total_gs_symbol_size_dict, f)
-
-    @classmethod
     def __converting_to_ml_feature_list(cls, feature_dict):
         param_type_dict = {}
         for type_name, comb_dict in feature_dict.items():
@@ -352,11 +316,11 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                         param_normal_dict = \
                             primary_symbol_dict[type_name][comb_name][symbol_name][Constant_Parameters.NORMAL]
 
-                        param_attack_CSR = param_attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
-                        param_normal_CSR = param_normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                        temp_attack_CSR = param_attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                        temp_normal_CSR = param_normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
 
-                        if param_attack_CSR > 0:
-                            temp_attack_CSR_diff += (param_attack_CSR - attack_min_CSR)
+                        if temp_attack_CSR > 0:
+                            temp_attack_CSR_diff += (temp_attack_CSR * (1 + temp_attack_CSR - attack_min_CSR))
                             param_attack_dict = \
                                 cls.__get_reduced_data_point_dict(attack_min_size,
                                                                   param_attack_dict[Constant_Parameters.DATA_POINT])
@@ -365,8 +329,8 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                                 cls.__get_dummy_data_point_dict(attack_min_size,
                                                                 param_attack_dict[Constant_Parameters.DATA_POINT])
 
-                        if param_normal_CSR > 0:
-                            temp_normal_CSR_diff += (param_normal_CSR - normal_min_CSR)
+                        if temp_normal_CSR > 0:
+                            temp_normal_CSR_diff += (temp_normal_CSR * (1 + temp_normal_CSR - normal_min_CSR))
                             param_normal_dict = \
                                 cls.__get_reduced_data_point_dict(normal_min_size,
                                                                   param_normal_dict[Constant_Parameters.DATA_POINT])
@@ -731,7 +695,12 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
             chosen_data_list = []
 
             while index < largest_size:
-                if index % quotient == 0:
+                if quotient == 0:
+                    temp = 0
+                else:
+                    temp = index % quotient
+
+                if temp == 0:
                     if total_remainder > quotient:
                         chosen_data_list.append(largest_list[index])
                         index += quotient

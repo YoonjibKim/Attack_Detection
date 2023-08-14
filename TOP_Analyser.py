@@ -1,5 +1,7 @@
 import json
 import re
+
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
@@ -294,18 +296,60 @@ class TOP_Analyser:
         return total_cs_common_dataset_dict, total_cs_common_csr_dict, total_cs_original_dataset_dict
 
     @classmethod
-    def __calculate_monte_carlo(cls, processed_dict, original_dict):
+    def __calculate_histogram_dict(cls, processed_dict, original_dict):
+        n_size = 100
+        diff_rate_list = []
         for cs_id, processed_data_point_list in processed_dict.items():
             original_data_point_list = original_dict[cs_id]
-            print()
+            bin_list = list(_ for _ in range(0, n_size))
+            original_bin_dict = {}
+            processed_bin_dict = {}
+            for index in bin_list:
+                original_bin_dict[str(index)] = []
+                processed_bin_dict[str(index)] = []
+
+            for overhead in original_data_point_list:
+                for bin_begin_val in bin_list:
+                    bin_end_val = bin_begin_val + 1
+                    if bin_begin_val <= overhead < bin_end_val:
+                        original_bin_dict[str(bin_begin_val)].append(overhead)
+
+            for overhead in processed_data_point_list:
+                for bin_begin_val in bin_list:
+                    bin_end_val = bin_begin_val + 1
+                    if bin_begin_val <= overhead < bin_end_val:
+                        processed_bin_dict[str(bin_begin_val)].append(overhead)
+
+            difference_list = []
+            for overhead in original_bin_dict.keys():
+                original_overhead_list = original_bin_dict[overhead]
+                processed_overhead_list = processed_bin_dict[overhead]
+                original_size = len(original_overhead_list)
+                processed_size = len(processed_overhead_list)
+                difference = abs(original_size - processed_size) / np.exp(processed_size)
+                difference_list.append(difference)
+            diff_rate = sum(difference_list) / n_size
+            diff_rate_list.append(diff_rate)
+
+        diff_mean = np.mean(diff_rate_list)
+
+        return diff_mean
+
+    @classmethod
+    def __calculate_csr_ratio(cls, total_result_dict):
+        print()
 
     @classmethod
     def proof_csr(cls):
         total_cs_common_dataset_dict, total_cs_common_csr_dict, total_cs_original_dataset_dict = \
             cls.__get_cs_common_dataset_dict()
 
+        total_result_dict = {}
         for scenario, category_dict in total_cs_common_dataset_dict.items():
+            scenario_dict = {}
             for category, temp_dict in category_dict.items():
+                basis_category_dict = {}
+
                 basis_symbol_data_dict = temp_dict[Constant_Parameters.BASIS_SYMBOL]
                 for basis_symbol_name, type_dict in basis_symbol_data_dict.items():
                     attack_processed_basis_symbol_dict = type_dict[Constant_Parameters.ATTACK]
@@ -320,35 +364,56 @@ class TOP_Analyser:
 
                     attack_basis_symbol_csr = temp_csr_dict[basis_symbol_name][Constant_Parameters.ATTACK]
                     normal_basis_symbol_csr = temp_csr_dict[basis_symbol_name][Constant_Parameters.NORMAL]
-                    cls.__calculate_monte_carlo(attack_processed_basis_symbol_dict, attack_original_basis_symbol_dict)
-                    cls.__calculate_monte_carlo(normal_processed_basis_symbol_dict, normal_original_basis_symbol_dict)
+                    attack_diff_mean = cls.__calculate_histogram_dict(attack_processed_basis_symbol_dict,
+                                                                      attack_original_basis_symbol_dict)
+                    normal_diff_mean = cls.__calculate_histogram_dict(normal_processed_basis_symbol_dict,
+                                                                      normal_original_basis_symbol_dict)
+                    basis_attack_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: attack_basis_symbol_csr,
+                                         Constant_Parameters.CSR_PROOF: attack_diff_mean}
+                    basis_normal_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: normal_basis_symbol_csr,
+                                         Constant_Parameters.CSR_PROOF: normal_diff_mean}
+                    basis_category_dict[basis_symbol_name] = {Constant_Parameters.ATTACK: basis_attack_dict,
+                                                              Constant_Parameters.NORMAL: basis_normal_dict}
 
                 processed_combined_symbol_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL]
                 temp_attack_processed_combined_symbol_dict = processed_combined_symbol_dict[Constant_Parameters.ATTACK]
                 temp_normal_processed_combined_symbol_dict = processed_combined_symbol_dict[Constant_Parameters.NORMAL]
 
+                attack_result_list = []
                 for attack_combined_symbol_name, attack_processed_combined_symbol_dict \
                         in temp_attack_processed_combined_symbol_dict.items():
                     original_basis_symbol = \
                         total_cs_original_dataset_dict[scenario][category][Constant_Parameters.BASIS_SYMBOL]
                     attack_original_combined_symbol_dict = \
                         original_basis_symbol[attack_combined_symbol_name][Constant_Parameters.ATTACK]
-                    temp_csr_dict = total_cs_common_csr_dict[scenario][category][Constant_Parameters.COMBINED_SYMBOL]
+                    attack_diff_mean = cls.__calculate_histogram_dict(attack_processed_combined_symbol_dict,
+                                                                      attack_original_combined_symbol_dict)
+                    attack_result_list.append(attack_diff_mean)
 
-                    attack_combined_symbol_csr = temp_csr_dict[Constant_Parameters.ATTACK]
-                    cls.__calculate_monte_carlo(attack_processed_combined_symbol_dict,
-                                                attack_original_combined_symbol_dict)
-
+                normal_result_list = []
                 for normal_combined_symbol_name, normal_processed_combined_symbol_dict \
                         in temp_normal_processed_combined_symbol_dict.items():
                     original_basis_symbol = \
                         total_cs_original_dataset_dict[scenario][category][Constant_Parameters.BASIS_SYMBOL]
                     normal_original_combined_symbol_dict = \
                         original_basis_symbol[normal_combined_symbol_name][Constant_Parameters.ATTACK]
-                    temp_csr_dict = total_cs_common_csr_dict[scenario][category][Constant_Parameters.COMBINED_SYMBOL]
+                    normal_diff_mean = cls.__calculate_histogram_dict(normal_processed_combined_symbol_dict,
+                                                                      normal_original_combined_symbol_dict)
+                    normal_result_list.append(normal_diff_mean)
 
-                    normal_combined_symbol_csr = temp_csr_dict[Constant_Parameters.NORMAL]
-                    cls.__calculate_monte_carlo(normal_processed_combined_symbol_dict,
-                                                normal_original_combined_symbol_dict)
+                temp = total_cs_common_csr_dict[scenario][category][Constant_Parameters.COMBINED_SYMBOL]
+                attack_combined_csr = temp[Constant_Parameters.ATTACK]
+                normal_combined_csr = temp[Constant_Parameters.NORMAL]
 
+                common_attack_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: attack_combined_csr,
+                                      Constant_Parameters.CSR_PROOF: np.mean(attack_result_list)}
+                common_normal_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: normal_combined_csr,
+                                      Constant_Parameters.CSR_PROOF: np.mean(normal_result_list)}
+                common_category_dict = {Constant_Parameters.ATTACK: common_attack_dict,
+                                        Constant_Parameters.NORMAL: common_normal_dict}
 
+                scenario_dict[category] = {Constant_Parameters.BASIS_SYMBOL: basis_category_dict,
+                                           Constant_Parameters.COMBINED_SYMBOL: common_category_dict}
+
+            total_result_dict[scenario] = scenario_dict
+        cls.__calculate_csr_ratio(total_result_dict)

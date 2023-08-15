@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
+from scipy.stats import stats
+
 import Constant_Parameters
 
 
@@ -326,7 +328,7 @@ class TOP_Analyser:
                 processed_overhead_list = processed_bin_dict[overhead]
                 original_size = len(original_overhead_list)
                 processed_size = len(processed_overhead_list)
-                difference = abs(original_size - processed_size) / np.exp(processed_size)
+                difference = 1 - np.exp(original_size - processed_size) / np.exp(original_size)
                 difference_list.append(difference)
             diff_rate = sum(difference_list) / n_size
             diff_rate_list.append(diff_rate)
@@ -334,10 +336,6 @@ class TOP_Analyser:
         diff_mean = np.mean(diff_rate_list)
 
         return diff_mean
-
-    @classmethod
-    def __calculate_csr_ratio(cls, total_result_dict):
-        print()
 
     @classmethod
     def proof_csr(cls):
@@ -416,4 +414,49 @@ class TOP_Analyser:
                                            Constant_Parameters.COMBINED_SYMBOL: common_category_dict}
 
             total_result_dict[scenario] = scenario_dict
-        cls.__calculate_csr_ratio(total_result_dict)
+
+        file_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.CSR_ANALYSIS + '/' + \
+                    Constant_Parameters.CSR_ANALYSIS + '.json'
+        with open(file_path, 'w') as f:
+            json.dump(total_result_dict, f)
+
+        original_attack_cycle_list = []
+        original_attack_branch_list = []
+        original_attack_instruction_list = []
+        processed_attack_cycle_list = []
+        processed_attack_branch_list = []
+        processed_attack_instruction_list = []
+
+        original_normal_cycle_list = []
+        original_normal_branch_list = []
+        original_normal_instruction_list = []
+        processed_normal_cycle_list = []
+        processed_normal_branch_list = []
+        processed_normal_instruction_list = []
+
+        for scenario, category_dict in total_result_dict.items():
+            for category, temp_dict in category_dict.items():
+                attack_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.ATTACK]
+                normal_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.NORMAL]
+
+                original_attack_csr = attack_dict[Constant_Parameters.CSR_PROOF]
+                original_normal_csr = normal_dict[Constant_Parameters.CSR_PROOF]
+                processed_attack_csr = attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                processed_normal_csr = normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+
+                if category == Constant_Parameters.INSTRUCTIONS:
+                    original_attack_instruction_list.append(original_attack_csr)
+                    original_normal_instruction_list.append(original_normal_csr)
+                    processed_attack_instruction_list.append(processed_attack_csr)
+                    processed_normal_instruction_list.append(processed_normal_csr)
+                elif category == Constant_Parameters.BRANCH:
+                    original_attack_branch_list.append(original_attack_csr)
+                    original_normal_branch_list.append(original_normal_csr)
+                    processed_attack_branch_list.append(processed_attack_csr)
+                    processed_normal_branch_list.append(processed_normal_csr)
+                elif category == Constant_Parameters.CYCLES:
+                    original_attack_cycle_list.append(original_attack_csr)
+                    original_normal_cycle_list.append(original_normal_csr)
+                    processed_attack_cycle_list.append(processed_attack_csr)
+                    processed_normal_cycle_list.append(processed_normal_csr)
+

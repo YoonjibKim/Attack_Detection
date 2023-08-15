@@ -343,12 +343,8 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                         temp_normal_data_point_dict[symbol_name] = param_normal_dict
 
                     feature_size = len(sub_set_list)
-                    if feature_size > 1:
-                        param_attack_CSR_avg = temp_attack_CSR_diff / (feature_size - 1)
-                        param_normal_CSR_avg = temp_normal_CSR_diff / (feature_size - 1)
-                    else:
-                        param_attack_CSR_avg = temp_attack_CSR_diff
-                        param_normal_CSR_avg = temp_normal_CSR_diff
+                    param_attack_CSR_avg = temp_attack_CSR_diff / (feature_size + 1)
+                    param_normal_CSR_avg = temp_normal_CSR_diff / (feature_size + 1)
 
                     temp_attack_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: param_attack_CSR_avg,
                                         Constant_Parameters.DATA_POINT: temp_attack_data_point_dict}

@@ -1,5 +1,6 @@
 import json
 import re
+from copy import deepcopy
 
 import numpy as np
 import pandas as pd
@@ -338,6 +339,98 @@ class TOP_Analyser:
         return diff_mean
 
     @classmethod
+    def __get_ordered_list(cls, csr_list):
+        csr_copy_list = deepcopy(csr_list)
+        sorted_csr_list = sorted(csr_copy_list)
+
+        order_list = []
+        for sorted_csr in sorted_csr_list:
+            for index, csr in enumerate(csr_list):
+                if csr == sorted_csr:
+                    order_list.append(index + 1)
+                    break
+
+        return order_list
+
+    @classmethod
+    def __calculate_spearman_correlation_analysis(cls, total_result_dict):
+        original_attack_cycle_list = []
+        original_attack_branch_list = []
+        original_attack_instruction_list = []
+        processed_attack_cycle_list = []
+        processed_attack_branch_list = []
+        processed_attack_instruction_list = []
+
+        original_normal_cycle_list = []
+        original_normal_branch_list = []
+        original_normal_instruction_list = []
+        processed_normal_cycle_list = []
+        processed_normal_branch_list = []
+        processed_normal_instruction_list = []
+
+        for scenario, category_dict in total_result_dict.items():
+            for category, temp_dict in category_dict.items():
+                attack_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.ATTACK]
+                normal_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.NORMAL]
+
+                original_attack_csr = attack_dict[Constant_Parameters.CSR_PROOF]
+                original_normal_csr = normal_dict[Constant_Parameters.CSR_PROOF]
+                processed_attack_csr = attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+                processed_normal_csr = normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
+
+                if category == Constant_Parameters.INSTRUCTIONS:
+                    original_attack_instruction_list.append(original_attack_csr)
+                    original_normal_instruction_list.append(original_normal_csr)
+                    processed_attack_instruction_list.append(processed_attack_csr)
+                    processed_normal_instruction_list.append(processed_normal_csr)
+                elif category == Constant_Parameters.BRANCH:
+                    original_attack_branch_list.append(original_attack_csr)
+                    original_normal_branch_list.append(original_normal_csr)
+                    processed_attack_branch_list.append(processed_attack_csr)
+                    processed_normal_branch_list.append(processed_normal_csr)
+                elif category == Constant_Parameters.CYCLES:
+                    original_attack_cycle_list.append(original_attack_csr)
+                    original_normal_cycle_list.append(original_normal_csr)
+                    processed_attack_cycle_list.append(processed_attack_csr)
+                    processed_normal_cycle_list.append(processed_normal_csr)
+
+        attack_cycle_stat_val, attack_cycle_p_val = \
+            stats.spearmanr(original_attack_cycle_list, processed_attack_cycle_list)
+        attack_branch_stat_val, attack_branch_p_val = \
+            stats.spearmanr(original_attack_branch_list, processed_attack_branch_list)
+        attack_instruction_stat_val, attack_instruction_p_val = \
+            stats.spearmanr(original_attack_instruction_list, processed_attack_instruction_list)
+        normal_cycle_stat_val, normal_cycle_p_val = \
+            stats.spearmanr(original_normal_cycle_list, processed_normal_cycle_list)
+        normal_branch_stat_val, normal_branch_p_val = \
+            stats.spearmanr(original_normal_branch_list, processed_normal_branch_list)
+        normal_instruction_stat_val, normal_instruction_p_val = \
+            stats.spearmanr(original_normal_instruction_list, processed_normal_instruction_list)
+
+        attack_cycle_dict = {Constant_Parameters.STATISTICS: attack_cycle_stat_val,
+                             Constant_Parameters.P_VALUE: attack_cycle_p_val}
+        attack_branch_dict = {Constant_Parameters.STATISTICS: attack_branch_stat_val,
+                              Constant_Parameters.P_VALUE: attack_branch_p_val}
+        attack_instruction_dict = {Constant_Parameters.STATISTICS: attack_instruction_stat_val,
+                                   Constant_Parameters.P_VALUE: attack_instruction_p_val}
+        normal_cycle_dict = {Constant_Parameters.STATISTICS: normal_cycle_stat_val,
+                             Constant_Parameters.P_VALUE: normal_cycle_p_val}
+        normal_branch_dict = {Constant_Parameters.STATISTICS: normal_branch_stat_val,
+                              Constant_Parameters.P_VALUE: normal_branch_p_val}
+        normal_instruction_dict = {Constant_Parameters.STATISTICS: normal_instruction_stat_val,
+                                   Constant_Parameters.P_VALUE: normal_instruction_p_val}
+
+        cycle_dict = {Constant_Parameters.ATTACK: attack_cycle_dict, Constant_Parameters.NORMAL: normal_cycle_dict}
+        branch_dict = {Constant_Parameters.ATTACK: attack_branch_dict, Constant_Parameters.NORMAL: normal_branch_dict}
+        instruction_dict = \
+            {Constant_Parameters.ATTACK: attack_instruction_dict, Constant_Parameters.NORMAL: normal_instruction_dict}
+
+        correlation_analysis_dict = {Constant_Parameters.CYCLES: cycle_dict, Constant_Parameters.BRANCH: branch_dict,
+                                     Constant_Parameters.INSTRUCTIONS: instruction_dict}
+
+        return correlation_analysis_dict
+
+    @classmethod
     def proof_csr(cls):
         total_cs_common_dataset_dict, total_cs_common_csr_dict, total_cs_original_dataset_dict = \
             cls.__get_cs_common_dataset_dict()
@@ -420,43 +513,9 @@ class TOP_Analyser:
         with open(file_path, 'w') as f:
             json.dump(total_result_dict, f)
 
-        original_attack_cycle_list = []
-        original_attack_branch_list = []
-        original_attack_instruction_list = []
-        processed_attack_cycle_list = []
-        processed_attack_branch_list = []
-        processed_attack_instruction_list = []
+        correlation_analysis_dict = cls.__calculate_spearman_correlation_analysis(total_result_dict)
 
-        original_normal_cycle_list = []
-        original_normal_branch_list = []
-        original_normal_instruction_list = []
-        processed_normal_cycle_list = []
-        processed_normal_branch_list = []
-        processed_normal_instruction_list = []
-
-        for scenario, category_dict in total_result_dict.items():
-            for category, temp_dict in category_dict.items():
-                attack_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.ATTACK]
-                normal_dict = temp_dict[Constant_Parameters.COMBINED_SYMBOL][Constant_Parameters.NORMAL]
-
-                original_attack_csr = attack_dict[Constant_Parameters.CSR_PROOF]
-                original_normal_csr = normal_dict[Constant_Parameters.CSR_PROOF]
-                processed_attack_csr = attack_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
-                processed_normal_csr = normal_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
-
-                if category == Constant_Parameters.INSTRUCTIONS:
-                    original_attack_instruction_list.append(original_attack_csr)
-                    original_normal_instruction_list.append(original_normal_csr)
-                    processed_attack_instruction_list.append(processed_attack_csr)
-                    processed_normal_instruction_list.append(processed_normal_csr)
-                elif category == Constant_Parameters.BRANCH:
-                    original_attack_branch_list.append(original_attack_csr)
-                    original_normal_branch_list.append(original_normal_csr)
-                    processed_attack_branch_list.append(processed_attack_csr)
-                    processed_normal_branch_list.append(processed_normal_csr)
-                elif category == Constant_Parameters.CYCLES:
-                    original_attack_cycle_list.append(original_attack_csr)
-                    original_normal_cycle_list.append(original_normal_csr)
-                    processed_attack_cycle_list.append(processed_attack_csr)
-                    processed_normal_cycle_list.append(processed_normal_csr)
-
+        file_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.CSR_ANALYSIS + '/' + \
+                    Constant_Parameters.CORRELATION_ANALYSIS_FILENAME
+        with open(file_path, 'w') as f:
+            json.dump(correlation_analysis_dict, f)

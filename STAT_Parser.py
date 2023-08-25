@@ -482,7 +482,7 @@ class STAT_Parser(Time_Diff_Parser):
 
             param_dict = \
                 {Constant_Parameters.COMBINATION_LIST: sub_comb_list,
-                 Constant_Parameters.COMBINATION_LOSS_RATE:
+                 Constant_Parameters.COMBINED_LOSS_RATE:
                      {Constant_Parameters.ATTACK: sub_attack_diff_resolution_avg,
                       Constant_Parameters.NORMAL: sub_normal_diff_resolution_avg}}
 
@@ -620,32 +620,32 @@ class STAT_Parser(Time_Diff_Parser):
 
         return type_name[:-1]
 
-    def __saving_analysis_information(self, min_sampling_resolution_list, loss_rate_list, station_type):
-        comb_sampling_resolution_dict = {}
-        for temp_dict in min_sampling_resolution_list:
+    def __saving_analysis_information(self, min_loss_rate_list, loss_rate_list, station_type):
+        combined_min_loss_rate_dict = {}
+        for temp_dict in min_loss_rate_list:
             comb_list = temp_dict[Constant_Parameters.COMBINATION_LIST]
             type_name = self.__get_key_from_comb(comb_list)
             sampling_resolution_dict = temp_dict[Constant_Parameters.SAMPLING_RESOLUTION]
-            comb_sampling_resolution_dict[type_name] = sampling_resolution_dict
+            combined_min_loss_rate_dict[type_name] = sampling_resolution_dict
 
-        comb_loss_rate_dict = {}
+        clr_dict = {}
         for temp_dict in loss_rate_list:
             comb_list = temp_dict[Constant_Parameters.COMBINATION_LIST]
             type_name = self.__get_key_from_comb(comb_list)
-            loss_rate_dict = temp_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
-            comb_loss_rate_dict[type_name] = loss_rate_dict
+            temp_sr_dict = temp_dict[Constant_Parameters.COMBINED_LOSS_RATE]
+            clr_dict[type_name] = temp_sr_dict
 
         root_dir_path = self.__get_processed_data_root_dir_path(station_type)
-        sampling_resolution_filename = Constant_Parameters.SAMPLING_RESOLUTION + '.json'
-        comb_loss_rate_filename = Constant_Parameters.COMBINATION_LOSS_RATE + '.json'
+        min_clr_filename = Constant_Parameters.MIN_COMBINED_LOSS_RATE + '.json'
+        clr_filename = Constant_Parameters.COMBINED_LOSS_RATE + '.json'
 
-        sampling_resolution_path = root_dir_path + '/' + sampling_resolution_filename
-        comb_loss_rate_path = root_dir_path + '/' + comb_loss_rate_filename
+        min_clr_path = root_dir_path + '/' + min_clr_filename
+        clr_path = root_dir_path + '/' + clr_filename
 
-        with open(sampling_resolution_path, 'w') as f:
-            json.dump(comb_sampling_resolution_dict, f)
-        with open(comb_loss_rate_path, 'w') as f:
-            json.dump(comb_loss_rate_dict, f)
+        with open(min_clr_path, 'w') as f:
+            json.dump(combined_min_loss_rate_dict, f)
+        with open(clr_path, 'w') as f:
+            json.dump(clr_dict, f)
 
     def __get_processed_data_root_dir_path(self, station_type):
         scenario_list = self.__scenario_list
@@ -707,14 +707,14 @@ class STAT_Parser(Time_Diff_Parser):
         gs_analysis_dict = self.__analyzing_stat_sampling_analysis_dict([self.__gs_id], gs_stat_dict)
         time_diff_analysis_dict = self.analyzing_time_diff_sampling_analysis_dict()
 
-        cs_min_size_list, cs_min_sampling_resolution_list = \
+        cs_min_size_list, cs_min_loss_rate_list = \
             self.__get_meta_feature_combination_dict(cs_analysis_dict, time_diff_analysis_dict)
-        gs_min_size_list, gs_min_sampling_resolution_list = \
+        gs_min_size_list, gs_min_loss_rate_list = \
             self.__get_meta_feature_combination_dict(gs_analysis_dict, time_diff_analysis_dict)
 
-        cs_loss_rate_list = self.__calculating_combination_loss_rate_list(cs_min_sampling_resolution_list,
+        cs_loss_rate_list = self.__calculating_combination_loss_rate_list(cs_min_loss_rate_list,
                                                                           cs_analysis_dict, time_diff_analysis_dict)
-        gs_loss_rate_list = self.__calculating_combination_loss_rate_list(gs_min_sampling_resolution_list,
+        gs_loss_rate_list = self.__calculating_combination_loss_rate_list(gs_min_loss_rate_list,
                                                                           gs_analysis_dict, time_diff_analysis_dict)
 
         cs_combined_feature_list = \
@@ -725,8 +725,8 @@ class STAT_Parser(Time_Diff_Parser):
         cs_combination_feature_list = self.__converting_to_ml_feature_list(cs_combined_feature_list)
         gs_combination_feature_list = self.__converting_to_ml_feature_list(gs_combined_feature_list)
 
-        self.__saving_analysis_information(cs_min_sampling_resolution_list, cs_loss_rate_list, Constant_Parameters.CS)
-        self.__saving_analysis_information(gs_min_sampling_resolution_list, gs_loss_rate_list, Constant_Parameters.GS)
+        self.__saving_analysis_information(cs_min_loss_rate_list, cs_loss_rate_list, Constant_Parameters.CS)
+        self.__saving_analysis_information(gs_min_loss_rate_list, gs_loss_rate_list, Constant_Parameters.GS)
         self.__saving_original_dataset(cs_analysis_dict, time_diff_analysis_dict, Constant_Parameters.CS)
         self.__saving_original_dataset(gs_analysis_dict, time_diff_analysis_dict, Constant_Parameters.GS)
         self.__saving_ml_feature(cs_combination_feature_list, Constant_Parameters.CS)

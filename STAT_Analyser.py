@@ -27,39 +27,39 @@ class STAT_Analyser:
             self.__gs_stat_score_dict = json.load(f)
 
     @classmethod
-    def building_combination_loss_rate_heatmap(cls, station_type):
-        comb_loss_rate_path_list = []
+    def building_csr_heatmap(cls, station_type):
+        combined_loss_rate_path_list = []
         for root_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.values():
             temp_path = root_path + '/' + Constant_Parameters.STAT_PATH + '/' + station_type + '/' + \
-                        Constant_Parameters.COMBINATION_LOSS_RATE + '.json'
-            comb_loss_rate_path_list.append(temp_path)
+                        Constant_Parameters.COMBINED_LOSS_RATE + '.json'
+            combined_loss_rate_path_list.append(temp_path)
 
-        attack_comb_loss_rate_dict = {}
-        normal_comb_loss_rate_dict = {}
-        for loss_rate_path in comb_loss_rate_path_list:
-            with open(loss_rate_path, 'r') as f:
+        attack_combined_loss_rate_dict = {}
+        normal_combined_loss_rate_dict = {}
+        for combined_loss_rate_path in combined_loss_rate_path_list:
+            with open(combined_loss_rate_path, 'r') as f:
                 temp_dict = json.load(f)
                 param_attack = {}
                 param_normal = {}
                 for comb_type, category_dict in temp_dict.items():
-                    attack_loss_rate = category_dict[Constant_Parameters.ATTACK]
-                    normal_loss_rate = category_dict[Constant_Parameters.NORMAL]
+                    attack_clr = category_dict[Constant_Parameters.ATTACK]
+                    normal_clr = category_dict[Constant_Parameters.NORMAL]
 
                     comb_initials = cls.__get_initials(comb_type)
 
-                    param_attack[comb_initials] = attack_loss_rate
-                    param_normal[comb_initials] = normal_loss_rate
+                    param_attack[comb_initials] = attack_clr
+                    param_normal[comb_initials] = normal_clr
 
             abbreviation = ''
             for temp, temp_path in Constant_Parameters.PROCESSED_DATASET_PATH_DICT.items():
-                if loss_rate_path.find(temp_path) > -1:
+                if combined_loss_rate_path.find(temp_path) > -1:
                     abbreviation = temp
                     break
 
-            attack_comb_loss_rate_dict[abbreviation] = param_attack
-            normal_comb_loss_rate_dict[abbreviation] = param_normal
+            attack_combined_loss_rate_dict[abbreviation] = param_attack
+            normal_combined_loss_rate_dict[abbreviation] = param_normal
 
-        return attack_comb_loss_rate_dict, normal_comb_loss_rate_dict
+        return attack_combined_loss_rate_dict, normal_combined_loss_rate_dict
 
     @classmethod
     def __get_initials(cls, full_name):
@@ -134,18 +134,18 @@ class STAT_Analyser:
                 param_list = [comb_type, ml_type, merged_loss_rate_dict[comb_type], score, support]
                 score_list.append(param_list)
 
-        sorted_score_list = sorted(score_list, key=lambda x: (x[4], -x[2], x[3]))
-        worst_score_list = sorted_score_list[0]
-        best_score_list = sorted_score_list[len(sorted_score_list) - 1]
+        sorted_score_list = sorted(score_list, key=lambda x: (-x[4], x[2], -x[3]))  # support, combined loss rate, f1
+        best_score_list = sorted_score_list[0]
+        worst_score_list = sorted_score_list[len(sorted_score_list) - 1]
 
         worst_score_dict = {Constant_Parameters.COMBINATION_TYPE: worst_score_list[0],
                             Constant_Parameters.ML_TYPE: worst_score_list[1],
-                            Constant_Parameters.COMBINATION_LOSS_RATE: worst_score_list[2],
+                            Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: worst_score_list[2],
                             Constant_Parameters.F1_SCORE: worst_score_list[3],
                             Constant_Parameters.SUPPORT: worst_score_list[4]}
         best_score_dict = {Constant_Parameters.COMBINATION_TYPE: best_score_list[0],
                            Constant_Parameters.ML_TYPE: best_score_list[1],
-                           Constant_Parameters.COMBINATION_LOSS_RATE: best_score_list[2],
+                           Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: best_score_list[2],
                            Constant_Parameters.F1_SCORE: best_score_list[3],
                            Constant_Parameters.SUPPORT: best_score_list[4]}
 
@@ -153,7 +153,7 @@ class STAT_Analyser:
 
     @classmethod
     def merging_attack_and_normal_loss_rate_dict(cls, attack_comb_loss_rate_dict, normal_comb_loss_rate_dict):
-        scenario_score_dict = {}
+        scenario_clr_dict = {}
         for scenario, attack_dict in attack_comb_loss_rate_dict.items():
             normal_dict = normal_comb_loss_rate_dict[scenario]
             ml_avg_score_dict = {}
@@ -161,12 +161,12 @@ class STAT_Analyser:
                 normal_score = normal_dict[ml_type]
                 score_avg = (attack_score + normal_score) / 2
                 ml_avg_score_dict[ml_type] = score_avg
-            scenario_score_dict[scenario] = ml_avg_score_dict
+            scenario_clr_dict[scenario] = ml_avg_score_dict
 
-        return scenario_score_dict
+        return scenario_clr_dict
 
     @classmethod
-    def drawing_loss_rate(cls, loss_rate_dict, station_type):
+    def drawing_csr(cls, loss_rate_dict, station_type):
         df = pd.DataFrame(loss_rate_dict)
         sns.heatmap(df, cmap='YlGnBu', annot=True, fmt='1.3f', linewidths=.3)
         sns.set(font_scale=1.0)
@@ -174,7 +174,7 @@ class STAT_Analyser:
         plt.gcf().set_size_inches(16, 13)
         plt.title('Loss Rate')
         save_path = Constant_Parameters.RESULT_STAT_DIR_PATH + '/' + station_type + '/' + \
-                    Constant_Parameters.COMBINATION_LOSS_RATE + '.png'
+                    Constant_Parameters.COMBINED_SAMPLING_RESOLUTION + '.png'
         plt.savefig(save_path)
         plt.clf()
 
@@ -213,7 +213,8 @@ class STAT_Analyser:
             if temp_loss_rate == smallest_loss_rate:
                 loss_rate_list.append(all_param)
 
-        sorted_loss_rate_list = sorted(loss_rate_list, key=lambda x: (x[4], -x[2], x[3]), reverse=True)
+        # support, combined loss rate, f1
+        sorted_loss_rate_list = sorted(loss_rate_list, key=lambda x: (-x[4], x[2], -x[3]))
         smallest_loss_rate_list = sorted_loss_rate_list[0]
 
         param_comb_type = smallest_loss_rate_list[0]

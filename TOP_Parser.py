@@ -234,9 +234,9 @@ class TOP_Parser(Time_Diff_Parser, TOP_Record_Analysis):
                         category_dict[Constant_Parameters.ATTACK][Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
                     normal_sampling_resolution = \
                         category_dict[Constant_Parameters.NORMAL][Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
-                    average_CLR = (attack_sampling_resolution + normal_sampling_resolution) / 2
+                    average_CSR = (attack_sampling_resolution + normal_sampling_resolution) / 2
 
-                    param_dict = {Constant_Parameters.COMBINATION_LOSS_RATE: average_CLR,
+                    param_dict = {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: average_CSR,
                                   Constant_Parameters.TRAINING_FEATURE: training_feature_list,
                                   Constant_Parameters.TRAINING_LABEL: training_label_list,
                                   Constant_Parameters.TESTING_FEATURE: testing_feature_list,

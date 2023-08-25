@@ -1,1 +1,1 @@
-{"0": "kmem_cache_alloc_node", "1": "merge_sched_in", "2": "sock_recvmsg", "3": "update_curr", "4": "tcp_push"}
+{"0": "kmem_cache_alloc_node", "1": "update_curr", "2": "sock_recvmsg", "3": "tcp_push", "4": "merge_sched_in"}

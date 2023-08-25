@@ -83,14 +83,13 @@ def Load_Dataset(experiment_flag):
             stat_parser = STAT_Parser(dataset_init)
             stat_parser.run()
     elif experiment_flag == Constant_Parameters.TOP:
-        # for dataset_init in dataset_init_list:
-        #     top_parser = TOP_Parser(dataset_init)
-        #     top_parser.run()
-        # TOP_Parser.extract_overhead_ratio_and_index()
-        # TOP_Parser.calculate_total_feature_size()
-        # TOP_Parser.calculate_total_elbow_points()
-        # TOP_Parser.extract_record_size()
-        # TOP_Parser.extract_all_feature_size()
+        for dataset_init in dataset_init_list:
+            top_parser = TOP_Parser(dataset_init)
+            top_parser.run()
+        TOP_Parser.extract_overhead_ratio_and_index()
+        TOP_Parser.calculate_total_elbow_points()
+        TOP_Parser.extract_record_size()
+        TOP_Parser.extract_all_feature_size()
         TOP_Analyser.proof_csr()
     else:
         print('Wrong Experiment Choice')
@@ -112,17 +111,17 @@ def Run_ML(experiment_flag):
 def Result_Analysis(experiment_flag):
     if experiment_flag == Constant_Parameters.STAT:
         cs_attack_loss_rate_dict, cs_normal_loss_rate_dict = \
-            STAT_Analyser.building_combination_loss_rate_heatmap(Constant_Parameters.CS)
+            STAT_Analyser.building_csr_heatmap(Constant_Parameters.CS)
         gs_attack_loss_rate_dict, gs_normal_loss_rate_dict = \
-            STAT_Analyser.building_combination_loss_rate_heatmap(Constant_Parameters.GS)
+            STAT_Analyser.building_csr_heatmap(Constant_Parameters.GS)
 
         cs_merged_loss_rate_dict = \
             STAT_Analyser.merging_attack_and_normal_loss_rate_dict(cs_attack_loss_rate_dict, cs_normal_loss_rate_dict)
         gs_merged_loss_rate_dict = \
             STAT_Analyser.merging_attack_and_normal_loss_rate_dict(gs_attack_loss_rate_dict, gs_normal_loss_rate_dict)
 
-        STAT_Analyser.drawing_loss_rate(cs_merged_loss_rate_dict, Constant_Parameters.CS)
-        STAT_Analyser.drawing_loss_rate(gs_merged_loss_rate_dict, Constant_Parameters.GS)
+        STAT_Analyser.drawing_csr(cs_merged_loss_rate_dict, Constant_Parameters.CS)
+        STAT_Analyser.drawing_csr(gs_merged_loss_rate_dict, Constant_Parameters.GS)
 
         for abbreviation, ml_scenario_path in Constant_Parameters.ML_DATASET_PATH_DICT.items():
             stat_analyser = STAT_Analyser(ml_scenario_path)
@@ -150,14 +149,14 @@ def Experiment_Data_Extraction():
 if __name__ == '__main__':
     print('Simulation Start')
 
-    Initialize_File_Path()
+    # Initialize_File_Path()
     # Load_Dataset(Constant_Parameters.STAT)
-    Load_Dataset(Constant_Parameters.TOP)
+    # Load_Dataset(Constant_Parameters.TOP)
     # Run_ML(Constant_Parameters.STAT)
     # Run_ML(Constant_Parameters.TOP)
     # Result_Analysis(Constant_Parameters.STAT)
     # Result_Analysis(Constant_Parameters.TOP)
-    # Ensemble_Learning()
-    # Experiment_Data_Extraction()
+    Ensemble_Learning()
+    Experiment_Data_Extraction()
 
     print('Simulation End')

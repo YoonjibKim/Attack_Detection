@@ -1,1 +1,1 @@
-{"0": "perf_log_itrace_start", "1": "__entry_text_start", "2": "__schedule", "3": "ip_skb_dst_mtu", "4": "__rseq_handle_notify_resume"}
+{"0": "update_load_avg", "1": "do_syscall_64", "2": "arch_perf_update_userpage", "3": "__fget_files", "4": "do_vfs_ioctl"}

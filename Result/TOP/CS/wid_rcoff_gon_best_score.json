@@ -1,1 +1,1 @@
-{"type": "cycles", "combination_type": "exclusive", "feature_combination": "0 + 1", "ml_type": "AB", "combination_loss_rate": 0.03514416647460325, "f1_score": 1.0, "support": 12}
+{"type": "cycles", "combination_type": "exclusive", "feature_combination": "0", "ml_type": "AB", "combined_sampling_resolution": 0.13123108686963533, "f1_score": 1.0, "support": 14}

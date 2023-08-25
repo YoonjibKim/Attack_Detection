@@ -93,34 +93,34 @@ class TOP_Analyser:
         plt.clf()
 
     @classmethod
-    def __get_combined_best_score_dict(cls, symbol_f1_score_dict, symbol_CLR_dict, symbol_support_dict):
+    def __get_combined_best_score_dict(cls, symbol_f1_score_dict, symbol_CSR_dict, symbol_support_dict):
         temp_list = []
         for symbol_index, score_dict in symbol_f1_score_dict.items():
-            clr_dict = symbol_CLR_dict[symbol_index]
+            csr_dict = symbol_CSR_dict[symbol_index]
             support_dict = symbol_support_dict[symbol_index]
             for ml_type, f1_score in score_dict.items():
-                clr = clr_dict[ml_type]
+                csr = csr_dict[ml_type]
                 support = support_dict[ml_type]
-                if clr > 0 and f1_score > 0:
-                    temp_list.append([symbol_index, ml_type, clr, f1_score, support])
+                if csr > 0 and f1_score > 0:
+                    temp_list.append([symbol_index, ml_type, csr, f1_score, support])
 
         if len(temp_list) > 0:
-            sorted_temp_list = sorted(temp_list, key=lambda x: (-x[4], x[2], -x[3]))
+            sorted_temp_list = sorted(temp_list, key=lambda x: (-x[4], -x[2], -x[3]))  # support, csr, f1
             best_list = sorted_temp_list[0]
 
             symbol_index = best_list[0]
             ml_type = best_list[1]
-            clr = best_list[2]
+            csr = best_list[2]
             f1_score = best_list[3]
             support = best_list[4]
         else:
             symbol_index = None
             ml_type = None
-            clr = Constant_Parameters.DUMMY_DATA
+            csr = Constant_Parameters.DUMMY_DATA
             f1_score = Constant_Parameters.DUMMY_DATA
             support = Constant_Parameters.DUMMY_DATA
 
-        return symbol_index, ml_type, clr, f1_score, support
+        return symbol_index, ml_type, csr, f1_score, support
 
     @classmethod
     def __saving_f1_score_result_to_json(cls, f1_score_dict, default_save_path):
@@ -139,7 +139,7 @@ class TOP_Analyser:
         for type_name, comb_dict in top_score_dict.items():
             for comb_name, symbol_dict in comb_dict.items():
                 param_symbol_f1_score_dict = {}
-                param_symbol_CLR_dict = {}
+                param_symbol_CSR_dict = {}
                 param_symbol_support_dict = {}
 
                 default_save_path = \
@@ -150,49 +150,49 @@ class TOP_Analyser:
                 for symbol_name, ml_dict in symbol_dict.items():
                     f1_score_dict = {}
                     support_dict = {}
-                    CLR_dict = {}
+                    CSR_dict = {}
                     for ml_name, score_dict in ml_dict.items():
-                        combined_loss_rate = score_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
+                        csr = score_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
                         f1_score = score_dict[Constant_Parameters.F1_SCORE]
                         f1_score_dict[ml_name] = f1_score
                         support = score_dict[Constant_Parameters.SUPPORT]
                         support_dict[ml_name] = support
-                        CLR_dict[ml_name] = combined_loss_rate
+                        CSR_dict[ml_name] = csr
 
                     symbol_string, param_symbol_dict = self.__get_heatmap_symbol_name_list(symbol_name, symbol_dict)
                     symbol_index_dict = param_symbol_dict
                     param_symbol_f1_score_dict[symbol_string] = f1_score_dict
-                    param_symbol_CLR_dict[symbol_string] = CLR_dict
+                    param_symbol_CSR_dict[symbol_string] = CSR_dict
                     param_symbol_support_dict[symbol_string] = support_dict
 
                 if len(symbol_dict) > 1:
                     self.__saving_f1_score_to_heatmap(param_symbol_f1_score_dict, default_save_path)
                     self.__saving_f1_score_result_to_json(param_symbol_f1_score_dict, default_save_path)
-                    self.__saving_combined_loss_rate_to_heatmap(param_symbol_CLR_dict, default_save_path)
-                    self.__saving__combined_loss_rate_to_json(param_symbol_CLR_dict, default_save_path)
+                    self.__saving_combined_loss_rate_to_heatmap(param_symbol_CSR_dict, default_save_path)
+                    self.__saving__combined_loss_rate_to_json(param_symbol_CSR_dict, default_save_path)
                     self.__saving_symbol_index(symbol_index_dict, default_save_path)
                     self.__saving_support(param_symbol_support_dict, default_save_path)
 
                     symbol_index, ml_type, clr, f1_score, support = \
-                        self.__get_combined_best_score_dict(param_symbol_f1_score_dict, param_symbol_CLR_dict,
+                        self.__get_combined_best_score_dict(param_symbol_f1_score_dict, param_symbol_CSR_dict,
                                                             param_symbol_support_dict)
                     if clr > 0 and f1_score > 0:
                         score_list.append([type_name, comb_name, symbol_index, ml_type, clr, f1_score, support])
 
         if len(score_list) > 0:
-            sorted_score_list = sorted(score_list, key=lambda x: (-x[6], x[4], -x[5]))
+            sorted_score_list = sorted(score_list, key=lambda x: (-x[6], -x[4], -x[5]))  # support, csr, f1
             best_list = sorted_score_list[0]
 
             param_dict = {Constant_Parameters.TYPE: best_list[0], Constant_Parameters.COMBINATION_TYPE: best_list[1],
                           Constant_Parameters.FEATURE_COMBINATION: best_list[2],
                           Constant_Parameters.ML_TYPE: best_list[3],
-                          Constant_Parameters.COMBINATION_LOSS_RATE: best_list[4],
+                          Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: best_list[4],
                           Constant_Parameters.F1_SCORE: best_list[5],
                           Constant_Parameters.SUPPORT: best_list[6]}
         else:
             param_dict = {Constant_Parameters.TYPE: None, Constant_Parameters.COMBINATION_TYPE: None,
                           Constant_Parameters.FEATURE_COMBINATION: None, Constant_Parameters.ML_TYPE: None,
-                          Constant_Parameters.COMBINATION_LOSS_RATE: Constant_Parameters.DUMMY_DATA,
+                          Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: Constant_Parameters.DUMMY_DATA,
                           Constant_Parameters.F1_SCORE: Constant_Parameters.DUMMY_DATA,
                           Constant_Parameters.SUPPORT: Constant_Parameters.DUMMY_DATA}
 

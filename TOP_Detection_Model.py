@@ -117,7 +117,7 @@ class TOP_Detection_Model:
             for comb_name, symbol_dict in comb_dict.items():
                 param_symbol_dict = {}
                 for symbol_name, category_dict in symbol_dict.items():
-                    combined_sampling_resolution = category_dict[Constant_Parameters.COMBINATION_LOSS_RATE]
+                    combined_sampling_resolution = category_dict[Constant_Parameters.COMBINED_SAMPLING_RESOLUTION]
                     training_feature_array = np.array(category_dict[Constant_Parameters.TRAINING_FEATURE])
                     training_label_array = np.array(category_dict[Constant_Parameters.TRAINING_LABEL]).reshape(-1, 1)
                     testing_feature_array = np.array(category_dict[Constant_Parameters.TESTING_FEATURE])
@@ -135,15 +135,15 @@ class TOP_Detection_Model:
                             recall = Constant_Parameters.DUMMY_DATA
                             f1_score = Constant_Parameters.DUMMY_DATA
                             support = Constant_Parameters.DUMMY_DATA
-                            CLR = Constant_Parameters.DUMMY_DATA
+                            CSR = Constant_Parameters.DUMMY_DATA
                         else:
                             accuracy, precision, recall, f1_score, support = \
                                 self.__run_sub_ml_algorithm(training_feature_array, training_label_array,
                                                             testing_feature_array, testing_label_array, ml_type)
-                            CLR = combined_sampling_resolution
+                            CSR = combined_sampling_resolution
 
                         param_result_dict[ml_type] = \
-                            {Constant_Parameters.COMBINATION_LOSS_RATE: CLR,
+                            {Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: CSR,
                              Constant_Parameters.ACCURACY: accuracy,
                              Constant_Parameters.PRECISION: precision,
                              Constant_Parameters.RECALL: recall,

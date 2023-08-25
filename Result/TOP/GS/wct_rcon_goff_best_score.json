@@ -1,1 +1,1 @@
-{"type": "instructions", "combination_type": "all", "feature_combination": "0 + 1", "ml_type": "DNN", "combination_loss_rate": 0.044109076858508234, "f1_score": 0.7893093101266254, "support": 106}
+{"type": "instructions", "combination_type": "all", "feature_combination": "0", "ml_type": "GN", "combined_sampling_resolution": 0.4326476708779685, "f1_score": 0.6403815035001935, "support": 112}

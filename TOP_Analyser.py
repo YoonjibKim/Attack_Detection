@@ -81,14 +81,14 @@ class TOP_Analyser:
             json.dump(support_dict, f)
 
     @classmethod
-    def __saving_combined_loss_rate_to_heatmap(cls, symbol_CLR_dict, default_save_path):
-        df = pd.DataFrame(symbol_CLR_dict)
+    def __saving_combined_sampling_resolution_to_heatmap(cls, symbol_CSR_dict, default_save_path):
+        df = pd.DataFrame(symbol_CSR_dict)
         sns.heatmap(df, cmap='YlGnBu', annot=True, fmt='1.3f', linewidths=.3)
         sns.set(font_scale=0.7)
         plt.xticks(rotation=-45)
         plt.gcf().set_size_inches(16, 9)
-        plt.title('Combined Loss Rate')
-        save_path = default_save_path + '_' + Constant_Parameters.CLR + '.png'
+        plt.title('Combined Sampling Resolution')
+        save_path = default_save_path + '_' + Constant_Parameters.CSR + '.png'
         plt.savefig(save_path)
         plt.clf()
 
@@ -129,10 +129,10 @@ class TOP_Analyser:
             json.dump(f1_score_dict, f)
 
     @classmethod
-    def __saving__combined_loss_rate_to_json(cls, clr_dict, default_save_path):
-        save_path = default_save_path + '_' + Constant_Parameters.CLR + '.json'
+    def __saving__combined_sampling_resolution_to_json(cls, csr_dict, default_save_path):
+        save_path = default_save_path + '_' + Constant_Parameters.CSR + '.json'
         with open(save_path, 'w') as f:
-            json.dump(clr_dict, f)
+            json.dump(csr_dict, f)
 
     def __get_best_score_dict(self, scenario_type, station_type, top_score_dict):
         score_list = []
@@ -168,8 +168,8 @@ class TOP_Analyser:
                 if len(symbol_dict) > 1:
                     self.__saving_f1_score_to_heatmap(param_symbol_f1_score_dict, default_save_path)
                     self.__saving_f1_score_result_to_json(param_symbol_f1_score_dict, default_save_path)
-                    self.__saving_combined_loss_rate_to_heatmap(param_symbol_CSR_dict, default_save_path)
-                    self.__saving__combined_loss_rate_to_json(param_symbol_CSR_dict, default_save_path)
+                    self.__saving_combined_sampling_resolution_to_heatmap(param_symbol_CSR_dict, default_save_path)
+                    self.__saving__combined_sampling_resolution_to_json(param_symbol_CSR_dict, default_save_path)
                     self.__saving_symbol_index(symbol_index_dict, default_save_path)
                     self.__saving_support(param_symbol_support_dict, default_save_path)
 

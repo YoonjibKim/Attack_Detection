@@ -155,7 +155,7 @@ if __name__ == '__main__':
     # Run_ML(Constant_Parameters.STAT)
     # Run_ML(Constant_Parameters.TOP)
     Result_Analysis(Constant_Parameters.STAT)
-    Result_Analysis(Constant_Parameters.TOP)
+    # Result_Analysis(Constant_Parameters.TOP)
     # Ensemble_Learning()
     # Experiment_Data_Extraction()
 

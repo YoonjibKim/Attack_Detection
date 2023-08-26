@@ -140,12 +140,12 @@ class STAT_Analyser:
 
         worst_score_dict = {Constant_Parameters.COMBINATION_TYPE: worst_score_list[0],
                             Constant_Parameters.ML_TYPE: worst_score_list[1],
-                            Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: worst_score_list[2],
+                            Constant_Parameters.COMBINED_LOSS_RATE: worst_score_list[2],
                             Constant_Parameters.F1_SCORE: worst_score_list[3],
                             Constant_Parameters.SUPPORT: worst_score_list[4]}
         best_score_dict = {Constant_Parameters.COMBINATION_TYPE: best_score_list[0],
                            Constant_Parameters.ML_TYPE: best_score_list[1],
-                           Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: best_score_list[2],
+                           Constant_Parameters.COMBINED_LOSS_RATE: best_score_list[2],
                            Constant_Parameters.F1_SCORE: best_score_list[3],
                            Constant_Parameters.SUPPORT: best_score_list[4]}
 

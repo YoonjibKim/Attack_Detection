@@ -127,6 +127,13 @@ class STAT_Analyser:
         avg_loss_rate = np.mean(data)
         median_loss_rate = np.median(data)
 
+        support_mean_list = []
+        for feature_dict in support_dict.values():
+            sub_support_list = list(feature_dict.values())
+            sub_support_mean = np.mean(sub_support_list)
+            support_mean_list.append(sub_support_mean)
+        avg_support = np.mean(support_mean_list)
+
         for comb_type, ml_type_dict in f1_score_dict.items():
             support_ml_type_dict = support_dict[comb_type]
             for ml_type, score in ml_type_dict.items():
@@ -149,7 +156,7 @@ class STAT_Analyser:
                            Constant_Parameters.F1_SCORE: best_score_list[3],
                            Constant_Parameters.SUPPORT: best_score_list[4]}
 
-        return worst_score_dict, best_score_dict, avg_loss_rate, median_loss_rate
+        return worst_score_dict, best_score_dict, avg_loss_rate, median_loss_rate, avg_support
 
     @classmethod
     def merging_attack_and_normal_loss_rate_dict(cls, attack_comb_loss_rate_dict, normal_comb_loss_rate_dict):
@@ -242,19 +249,21 @@ class STAT_Analyser:
         self.__drawing_f1_score(gs_f1_score_dict, Constant_Parameters.GS)
 
         print('----------------------- without statistic analysis -----------------------')
-        cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate = \
+        cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate, cs_avg_support = \
             self.__extracting_score_without_statistics_dict(cs_f1_score_dict, cs_support_dict, cs_merged_loss_rate_dict)
         print('cs worst: ', cs_worst_score_dict)
         print('cs best: ', cs_best_score_dict)
         print('cs average loss rate: ', cs_avg_loss_rate)
         print('cs median loss rate: ', cs_median_loss_rate)
+        print('cs average support: ', cs_avg_support)
 
-        gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate = \
+        gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate, gs_avg_support = \
             self.__extracting_score_without_statistics_dict(gs_f1_score_dict, gs_support_dict, gs_merged_loss_rate_dict)
         print('gs worst: ', gs_worst_score_dict)
         print('gs best: ', gs_best_score_dict)
         print('gs average loss rate: ', gs_avg_loss_rate)
         print('gs median loss rate: ', gs_median_loss_rate)
+        print('cs average support: ', gs_avg_support)
 
         print('------------------------- with statistic analysis ------------------------')
         cs_comb_type, cs_ml_type, cs_loss_rate, cs_f1_score, cs_support, cs_f1_score_avg, cs_f1_score_median = \
@@ -287,8 +296,9 @@ class STAT_Analyser:
         with open(cs_file_path, 'w', newline='') as f:
             wr = csv.writer(f)
             wr.writerow(['without statistic analysis'])
-            wr.writerow(['cs worst', 'cs best', 'cs average loss rate', 'cs median loss rate'])
-            wr.writerow([cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate])
+            wr.writerow(['cs worst', 'cs best', 'cs average loss rate', 'cs median loss rate', 'cs average support'])
+            wr.writerow([cs_worst_score_dict, cs_best_score_dict, cs_avg_loss_rate, cs_median_loss_rate,
+                         cs_avg_support])
             wr.writerow(['with statistic analysis'])
             wr.writerow(['cs best combination type', 'cs best ml type', 'cs loss rate', 'cs f1 score', 'cs support',
                          'cs f1 score average', 'cs f1 score median'])
@@ -298,8 +308,9 @@ class STAT_Analyser:
         with open(gs_file_path, 'w', newline='') as f:
             wr = csv.writer(f)
             wr.writerow(['without statistic analysis'])
-            wr.writerow(['gs worst', 'gs best', 'gs average loss rate', 'gs median loss rate'])
-            wr.writerow([gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate])
+            wr.writerow(['gs worst', 'gs best', 'gs average loss rate', 'gs median loss rate', 'gs average support'])
+            wr.writerow([gs_worst_score_dict, gs_best_score_dict, gs_avg_loss_rate, gs_median_loss_rate,
+                         gs_avg_support])
             wr.writerow(['with statistic analysis'])
             wr.writerow(['gs best combination type', 'gs best ml type', 'gs loss rate', 'gs f1 score', 'gs support',
                          'gs f1 score average', 'gs f1 score median'])

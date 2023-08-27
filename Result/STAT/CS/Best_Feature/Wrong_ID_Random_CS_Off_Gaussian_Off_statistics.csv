@@ -1,6 +1,6 @@
 without statistic analysis
-cs worst,cs best,cs average loss rate,cs median loss rate
-"{'combination_type': 'T + B + C + I', 'ml_type': 'DS', 'combination_loss_rate': 4.707405422964481, 'f1_score': 0.01420801420801421, 'support': 728}","{'combination_type': 'B + I', 'ml_type': 'AB', 'combination_loss_rate': 0.10959297792490179, 'f1_score': 0.9977138262667952, 'support': 2187}",1.8483545990796153,0.12123031882336677
+cs worst,cs best,cs average loss rate,cs median loss rate,cs average support
+"{'combination_type': 'T + B + C + I', 'ml_type': 'DS', 'combination_loss_rate': 4.707405422964481, 'f1_score': 0.01420801420801421, 'support': 728}","{'combination_type': 'B + I', 'ml_type': 'AB', 'combination_loss_rate': 0.10959297792490179, 'f1_score': 0.9977138262667952, 'support': 2187}",1.8483545990796153,0.12123031882336677,1408.8666666666666
 with statistic analysis
 cs best combination type,cs best ml type,cs loss rate,cs f1 score,cs support,cs f1 score average,cs f1 score median
 B + I,AB,0.10959297792490179,0.9977138262667952,2187,0.9821322540799682,0.9972330092630844

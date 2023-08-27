@@ -1,1 +1,1 @@
-{"type": "branch", "combination_type": "exclusive", "feature_combination": "0", "ml_type": "AB", "combined_sampling_resolution": 0.10460970611887793, "f1_score": 1.0, "support": 12}
+{"type": "branch", "combination_type": "exclusive", "feature_combination": "0", "ml_type": "AB", "combined_sampling_resolution": 0.10460970611887793, "f1_score": 1.0, "support": 12, "f1_score_average": 0.5823160960313644, "support_average": 2.3199683460828275, "csr_average": 0.015210483463879385}

@@ -135,6 +135,10 @@ class TOP_Analyser:
             json.dump(csr_dict, f)
 
     def __get_best_score_dict(self, scenario_type, station_type, top_score_dict):
+        f1_list = []
+        support_list = []
+        csr_list = []
+
         score_list = []
         for type_name, comb_dict in top_score_dict.items():
             for comb_name, symbol_dict in comb_dict.items():
@@ -159,6 +163,10 @@ class TOP_Analyser:
                         support_dict[ml_name] = support
                         CSR_dict[ml_name] = csr
 
+                        f1_list.append(f1_score)
+                        support_list.append(support)
+                        csr_list.append(csr)
+
                     symbol_string, param_symbol_dict = self.__get_heatmap_symbol_name_list(symbol_name, symbol_dict)
                     symbol_index_dict = param_symbol_dict
                     param_symbol_f1_score_dict[symbol_string] = f1_score_dict
@@ -179,6 +187,10 @@ class TOP_Analyser:
                     if clr > 0 and f1_score > 0:
                         score_list.append([type_name, comb_name, symbol_index, ml_type, clr, f1_score, support])
 
+        f1_score_mean = np.mean(f1_list)
+        support_mean = np.mean(support_list)
+        csr_mean = np.mean(csr_list)
+
         if len(score_list) > 0:
             sorted_score_list = sorted(score_list, key=lambda x: (-x[6], -x[4], -x[5]))  # support, csr, f1
             best_list = sorted_score_list[0]
@@ -188,13 +200,19 @@ class TOP_Analyser:
                           Constant_Parameters.ML_TYPE: best_list[3],
                           Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: best_list[4],
                           Constant_Parameters.F1_SCORE: best_list[5],
-                          Constant_Parameters.SUPPORT: best_list[6]}
+                          Constant_Parameters.SUPPORT: best_list[6],
+                          Constant_Parameters.F1_SCORE_AVERAGE: f1_score_mean,
+                          Constant_Parameters.SUPPORT_AVERAGE: support_mean,
+                          Constant_Parameters.CSR_AVERAGE: csr_mean}
         else:
             param_dict = {Constant_Parameters.TYPE: None, Constant_Parameters.COMBINATION_TYPE: None,
                           Constant_Parameters.FEATURE_COMBINATION: None, Constant_Parameters.ML_TYPE: None,
                           Constant_Parameters.COMBINED_SAMPLING_RESOLUTION: Constant_Parameters.DUMMY_DATA,
                           Constant_Parameters.F1_SCORE: Constant_Parameters.DUMMY_DATA,
-                          Constant_Parameters.SUPPORT: Constant_Parameters.DUMMY_DATA}
+                          Constant_Parameters.SUPPORT: Constant_Parameters.DUMMY_DATA,
+                          Constant_Parameters.F1_SCORE_AVERAGE: f1_score_mean,
+                          Constant_Parameters.SUPPORT_AVERAGE: support_mean,
+                          Constant_Parameters.CSR_AVERAGE: csr_mean}
 
         return param_dict
 

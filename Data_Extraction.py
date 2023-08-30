@@ -172,3 +172,51 @@ class Data_Extraction:
         station_id_list = list(station_id for station_id in temp_dict.keys())
 
         return station_id_list
+
+    @classmethod
+    def saving_time_diff_f1_score(cls):
+        open_file_path = Constant_Parameters.ML + '/' + Constant_Parameters.SCORE + '/' + Constant_Parameters.STAT
+        open_cs_file_path = open_file_path + '/' + Constant_Parameters.CS
+        open_gs_file_path = open_file_path + '/' + Constant_Parameters.GS
+
+        cs_dict = {}
+        gs_dict = {}
+        for temp_file_name in Constant_Parameters.FULL_SCENARIO_NAME_LIST:
+            open_cs_full_file_path = open_cs_file_path + '/' + temp_file_name + '.json'
+            open_gs_full_file_path = open_gs_file_path + '/' + temp_file_name + '.json'
+
+            cs_f1_score_list = []
+            cs_support_list = []
+            with open(open_cs_full_file_path) as f:
+                cs_score_dict = json.load(f)
+                cs_time_diff_dict = cs_score_dict[Constant_Parameters.TIME_DIFF]
+                for temp_dict in cs_time_diff_dict.values():
+                    f1_score = temp_dict[Constant_Parameters.F1_SCORE]
+                    support = temp_dict[Constant_Parameters.SUPPORT]
+                    cs_f1_score_list.append(f1_score)
+                    cs_support_list.append(support)
+
+            gs_f1_score_list = []
+            gs_support_list = []
+            with open(open_gs_full_file_path) as f:
+                gs_score_dict = json.load(f)
+                gs_time_diff_dict = gs_score_dict[Constant_Parameters.TIME_DIFF]
+                for temp_dict in gs_time_diff_dict.values():
+                    f1_score = temp_dict[Constant_Parameters.F1_SCORE]
+                    support = temp_dict[Constant_Parameters.SUPPORT]
+                    gs_f1_score_list.append(f1_score)
+                    gs_support_list.append(support)
+
+            cs_dict[temp_file_name] = {Constant_Parameters.F1_SCORE: np.mean(cs_f1_score_list),
+                                       Constant_Parameters.SUPPORT: np.mean(cs_support_list)}
+            gs_dict[temp_file_name] = {Constant_Parameters.F1_SCORE: np.mean(gs_f1_score_list),
+                                       Constant_Parameters.SUPPORT: np.mean(gs_support_list)}
+
+        save_dir_path = Constant_Parameters.RESULT + '/' + Constant_Parameters.TIME_DIFF_F1_SUPPORT
+        cs_save_file_path = save_dir_path + '/' + Constant_Parameters.CS + '.json'
+        gs_save_file_path = save_dir_path + '/' + Constant_Parameters.GS + '.json'
+
+        with open(cs_save_file_path, 'w') as f:
+            json.dump(cs_dict, f)
+        with open(gs_save_file_path, 'w') as f:
+            json.dump(gs_dict, f)

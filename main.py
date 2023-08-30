@@ -144,19 +144,20 @@ def Experiment_Data_Extraction():
     data_extraction.saving_station_id()
     data_extraction.saving_charging_session()
     data_extraction.saving_sim_time()
+    data_extraction.saving_time_diff_f1_score()
 
 
 if __name__ == '__main__':
     print('Simulation Start')
 
-    # Initialize_File_Path()
-    # Load_Dataset(Constant_Parameters.STAT)
-    # Load_Dataset(Constant_Parameters.TOP)
-    # Run_ML(Constant_Parameters.STAT)
-    # Run_ML(Constant_Parameters.TOP)
-    # Result_Analysis(Constant_Parameters.STAT)
-    # Result_Analysis(Constant_Parameters.TOP)
-    # Ensemble_Learning()
-    # Experiment_Data_Extraction()
+    Initialize_File_Path()
+    Load_Dataset(Constant_Parameters.STAT)
+    Load_Dataset(Constant_Parameters.TOP)
+    Run_ML(Constant_Parameters.STAT)
+    Run_ML(Constant_Parameters.TOP)
+    Result_Analysis(Constant_Parameters.STAT)
+    Result_Analysis(Constant_Parameters.TOP)
+    Ensemble_Learning()
+    Experiment_Data_Extraction()
 
     print('Simulation End')
